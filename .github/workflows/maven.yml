@@ -10,9 +10,7 @@ on:
     branches: [ "production", "staging" ]
 
 env:
-  JDBC_DATABASE_URL: jdbc:postgresql://ec2-54-157-16-196.compute-1.amazonaws.com:5432/d5so0n6mkg35tg?password=eb0ac26c540d10513347b6c506af9fb691c175e452f665ca07841097535e31ba&sslmode=require&user=ynwcsgxdejoesc
-  JDBC_DATABASE_USERNAME: ynwcsgxdejoesc
-  JDBC_DATABASE_PASSWORD: eb0ac26c540d10513347b6c506af9fb691c175e452f665ca07841097535e31ba
+  SPRING_PROFILES_ACTIVE: staging
 
 jobs:
   build:
