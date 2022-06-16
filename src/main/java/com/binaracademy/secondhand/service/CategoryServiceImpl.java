@@ -1,6 +1,7 @@
 package com.binaracademy.secondhand.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,12 @@ public class CategoryServiceImpl implements CategoryService {
 	@Override
 	public Category getCategory(Long id) {
 		log.info("Getting Category");
-		return categoryRepository.findById(id).orElseThrow();
+		Optional<Category> res = categoryRepository.findById(id);
+		if(res.isPresent()) {
+			return res.get();
+		} else {
+			return null;
+		}
 	}
 
 	@Override
