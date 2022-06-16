@@ -12,6 +12,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.binaracademy.secondhand.dto.UserDto;
 import com.binaracademy.secondhand.model.User;
 import com.binaracademy.secondhand.repository.UserRepository;
 
@@ -27,13 +28,27 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public User saveUser(User user) {
+    // ========================================================================
+    //   RETURN:
+    //      - empty user on user found
+    //      - null on invalid request
+    //      - user data on save success
+    // ========================================================================
+    public User saveUser(UserDto userDto) {
         log.info("Saving User");
-        if(userRepository.findByUsername(user.getUsername()) != null) {
+        if(userRepository.findByUsername(userDto.getUsername()) != null) {
+            return new User();
+        }
+        if(userDto.getUsername() != null && userDto.getPassword() != null && userDto.getEmail() != null) {
+            User user = new User();
+            user.setUsername(userDto.getUsername());
+            user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
+            user.setEmail(userDto.getEmail());
+
+            return userRepository.save(user);
+        } else {
             return null;
         }
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
     }
 
     @Override
