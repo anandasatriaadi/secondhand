@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.binaracademy.secondhand.dto.CategoryDto;
 import com.binaracademy.secondhand.model.Category;
 import com.binaracademy.secondhand.repository.CategoryRepository;
 
@@ -20,8 +21,10 @@ public class CategoryServiceImpl implements CategoryService {
 	private final CategoryRepository categoryRepository;
 
 	@Override
-	public Category saveCategory(Category category) {
+	public Category saveCategory(CategoryDto categoryDto) {
 		log.info("Saving Category");
+		Category category = new Category();
+		category.setCategoryName(categoryDto.getCategoryName());
 		return categoryRepository.save(category);
 	}
 
