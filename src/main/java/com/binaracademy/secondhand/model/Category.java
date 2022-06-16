@@ -1,6 +1,5 @@
 package com.binaracademy.secondhand.model;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -20,7 +19,6 @@ public class Category {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	@Column(name = "category_name")
-	private String category_name;
+	private String categoryName;
 
 }
