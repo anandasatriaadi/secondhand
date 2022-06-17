@@ -28,17 +28,8 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    // ========================================================================
-    //   RETURN:
-    //      - empty user on user found
-    //      - null on invalid request
-    //      - user data on save success
-    // ========================================================================
     public User saveUser(UserDto userDto) {
         log.info("Saving User");
-        if(userRepository.findByUsername(userDto.getUsername()) != null) {
-            return new User();
-        }
         if(userDto.getUsername() != null && userDto.getPassword() != null && userDto.getEmail() != null) {
             User user = new User();
             user.setUsername(userDto.getUsername());
