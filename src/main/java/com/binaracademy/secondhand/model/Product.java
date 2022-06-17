@@ -6,6 +6,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -17,12 +19,21 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "category")
-public class Category {
+@Table(name = "product")
+public class Product {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	private String categoryName;
-	@OneToMany(mappedBy = "category")
-    private Set<Product> products;
+    private String name;
+    private String description;
+
+    @ManyToOne()
+    @JoinColumn(name = "categoryId", insertable = false, updatable = false)
+    private Category category;
+
+	@OneToMany(mappedBy = "product")
+    private Set<ProductImage> productImages;
+    
+	@OneToMany(mappedBy = "product")
+    private Set<ProductOffer> productOffers;
 }
