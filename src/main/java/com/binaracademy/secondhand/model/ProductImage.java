@@ -22,6 +22,7 @@ public class ProductImage {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
+	private Long productId;
     private String imageName;
 
     @Max(2048)
