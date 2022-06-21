@@ -21,6 +21,7 @@ public class ProductOffer {
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
+	private Long productId;
     private Double offerPrice;
 
     @ManyToOne()

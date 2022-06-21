@@ -1,12 +1,9 @@
 package com.binaracademy.secondhand.model;
 
-import java.util.Set;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -23,6 +20,4 @@ public class Category {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	private String categoryName;
-	@OneToMany(mappedBy = "category")
-    private Set<Product> products;
 }
