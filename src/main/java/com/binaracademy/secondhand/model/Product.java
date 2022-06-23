@@ -29,10 +29,6 @@ public class Product {
 	private Long categoryId;
 
     @ManyToOne()
-    @JoinColumn(name = "userId", insertable = false, updatable = false)
-    private User user;
-
-    @ManyToOne()
     @JoinColumn(name = "categoryId", insertable = false, updatable = false)
     private Category category;
 }
