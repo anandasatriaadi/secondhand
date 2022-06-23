@@ -1,8 +1,13 @@
 package com.binaracademy.secondhand.controller;
 
+import com.binaracademy.secondhand.dto.UploadProductDto;
+import com.binaracademy.secondhand.model.Product;
+import com.binaracademy.secondhand.model.ProductImage;
+import com.binaracademy.secondhand.service.ProductService;
 import java.net.URI;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,21 +19,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.binaracademy.secondhand.dto.UploadProductDto;
-import com.binaracademy.secondhand.model.Product;
-import com.binaracademy.secondhand.model.ProductImage;
-import com.binaracademy.secondhand.service.ProductService;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @Slf4j
 public class ProductController {
+
     private final ProductService productService;
-    
+
     @GetMapping("/products")
     public ResponseEntity<List<Product>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
@@ -56,7 +54,11 @@ public class ProductController {
     }
 
     @PutMapping("/product/{id}/update")
-    public ResponseEntity<String> updateProduct(Authentication authentication,@PathVariable Long id, @ModelAttribute UploadProductDto uploadProductDto) {
+    public ResponseEntity<String> updateProduct(
+        Authentication authentication,
+        @PathVariable Long id,
+        @ModelAttribute UploadProductDto uploadProductDto
+    ) {
         log.info(authentication.getPrincipal().toString() + " updating a product.");
 
         // ======== Return Bad Request on Incomplete Request ========
@@ -67,7 +69,9 @@ public class ProductController {
         }
 
         // ======== Return Created on User Registration Success ========
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path(String.format("/api/product/%s/update", id)).toUriString());
+        URI uri = URI.create(
+            ServletUriComponentsBuilder.fromCurrentContextPath().path(String.format("/api/product/%s/update", id)).toUriString()
+        );
         return ResponseEntity.created(uri).body("Product updated successfully.");
     }
 }

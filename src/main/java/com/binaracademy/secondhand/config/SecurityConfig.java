@@ -2,6 +2,9 @@ package com.binaracademy.secondhand.config;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import com.binaracademy.secondhand.filter.UserAuthenticationFilter;
+import com.binaracademy.secondhand.filter.UserAuthorizationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,22 +19,23 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.binaracademy.secondhand.filter.UserAuthenticationFilter;
-import com.binaracademy.secondhand.filter.UserAuthorizationFilter;
-
-import lombok.RequiredArgsConstructor;
-
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
-public class SecurityConfig extends WebSecurityConfigurerAdapter{
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
     private final String[] SWAGGER_WHITELIST = {
-        "/swagger-ui.html", "/swagger-ui/**", "/configuration/**", "/swagger-resources/**", "/v3/api-docs/**", "/webjars/**"
+        "/swagger-ui.html",
+        "/swagger-ui/**",
+        "/configuration/**",
+        "/swagger-resources/**",
+        "/v3/api-docs/**",
+        "/webjars/**",
     };
 
     @Autowired
     private UserDetailsService userDetailsService;
-    
+
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -60,7 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().mvcMatchers(SWAGGER_WHITELIST);
     }
-    
+
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
