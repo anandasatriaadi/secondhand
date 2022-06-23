@@ -10,7 +10,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,14 +29,12 @@ import lombok.extern.slf4j.Slf4j;
 public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilter{
     private final AuthenticationManager authenticationManager;
 
-    @Value("${secondhand.jwtsecret}")
-    private String secretCode;
-
+    
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String username = request.getParameter("username");
         String password = request.getParameter("password");
-
+        
         log.info("Attempting authentication for user {}", username);
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
@@ -47,7 +44,7 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         User user = (User) authResult.getPrincipal();
-        secretCode = System.getenv("jwtsecret") == null ? System.getenv("jwtsecret") : secretCode;
+        String secretCode = System.getenv("jwtsecret") == null ? "th3r34ls3cr3t1sn0wh3r3t0b3f0und" : System.getenv("jwtsecret");
         Algorithm algorithm = Algorithm.HMAC256(secretCode.getBytes());
 
         // ======== Generate Access Token ========
@@ -68,7 +65,7 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
         tokens.put("username", user.getUsername());
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE); 
         new ObjectMapper().writeValue(response.getOutputStream(), tokens);
     }
     
