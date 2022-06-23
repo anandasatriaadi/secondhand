@@ -72,7 +72,7 @@ public class ProductServiceImpl implements ProductService {
                     String imageUrl = (String) SecondhandApplication.cloudinary.uploader().upload(convertFile, ObjectUtils.emptyMap()).get("url");
                     
                     ProductImage productImage = new ProductImage();
-                    productImage.setImageName(imageUrl);
+                    productImage.setImageUrl(imageUrl);
                     productImage.setProductId(productDb.getId());
                     productImageRepository.save(productImage);
                 } catch (Exception e) {

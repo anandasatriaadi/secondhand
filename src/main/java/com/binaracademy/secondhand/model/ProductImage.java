@@ -4,10 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.Max;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,12 +20,5 @@ public class ProductImage {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private Long productId;
-    private String imageName;
-
-    @Max(2048)
-    private Byte[] imageData;
-
-    @ManyToOne()
-    @JoinColumn(name = "productId", insertable = false, updatable = false)
-    private Product product;
+    private String imageUrl;
 }
