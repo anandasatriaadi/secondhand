@@ -19,7 +19,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.binaracademy.secondhand.dto.UploadProductDto;
 import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.model.ProductImage;
-import com.binaracademy.secondhand.repository.UserRepository;
 import com.binaracademy.secondhand.service.ProductService;
 
 import lombok.RequiredArgsConstructor;
@@ -31,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ProductController {
     private final ProductService productService;
-    private final UserRepository userRepository;
     
     @GetMapping("/products")
     public ResponseEntity<List<Product>> getAllProducts() {
@@ -46,12 +44,11 @@ public class ProductController {
     @PostMapping("/product/save")
     public ResponseEntity<String> saveProduct(Authentication authentication, @ModelAttribute UploadProductDto uploadProductDto, @RequestParam("images") MultipartFile[] images) {
         log.info(authentication.getPrincipal().toString() + " saving a product.");
-        Long userId = userRepository.findByUsername(authentication.getPrincipal().toString()).getId();
 
         // ======== Return Bad Request on Incomplete Request ========
         try {
             log.info(Arrays.toString(images));
-            productService.saveProduct(userId, uploadProductDto);
+            productService.saveProduct(authentication.getPrincipal().toString(), uploadProductDto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

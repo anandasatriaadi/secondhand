@@ -17,6 +17,7 @@ import com.binaracademy.secondhand.model.ProductOffer;
 import com.binaracademy.secondhand.repository.CategoryRepository;
 import com.binaracademy.secondhand.repository.ProductImageRepository;
 import com.binaracademy.secondhand.repository.ProductRepository;
+import com.binaracademy.secondhand.repository.UserRepository;
 import com.cloudinary.utils.ObjectUtils;
 
 import lombok.RequiredArgsConstructor;
@@ -35,8 +36,11 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductImageRepository productImageRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
-    public Product saveProduct(Long userId, UploadProductDto uploadProductDto) {
+    public Product saveProduct(String username, UploadProductDto uploadProductDto) {
         // ======== Check Images Count ========
         if(uploadProductDto.getImages().length > 4) {
             throw new IllegalArgumentException("Max 4 images");
@@ -48,9 +52,12 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("Category not found");
         }
 
+        
         // ======== Check if there are any nulls ========
         if(uploadProductDto.getName() != null && uploadProductDto.getDescription() != null && uploadProductDto.getCategoryId() != null &&
             uploadProductDto.getPrice() != null && uploadProductDto.getAddress() != null) {
+            
+            Long userId = userRepository.findByUsername(username).getId();
             
             // ======== Assign DTO to Model ========
             Product product = new Product();
