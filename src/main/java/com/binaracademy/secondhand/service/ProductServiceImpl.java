@@ -1,23 +1,30 @@
 package com.binaracademy.secondhand.service;
 
+import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.binaracademy.secondhand.dto.ProductDto;
+import com.binaracademy.secondhand.SecondhandApplication;
+import com.binaracademy.secondhand.dto.UploadProductDto;
 import com.binaracademy.secondhand.model.Category;
 import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.model.ProductImage;
 import com.binaracademy.secondhand.model.ProductOffer;
 import com.binaracademy.secondhand.repository.CategoryRepository;
+import com.binaracademy.secondhand.repository.ProductImageRepository;
 import com.binaracademy.secondhand.repository.ProductRepository;
+import com.cloudinary.utils.ObjectUtils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductRepository productRepository;
@@ -25,30 +32,64 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private CategoryRepository categoryRepository;
 
+    @Autowired
+    private ProductImageRepository productImageRepository;
+
     @Override
-    public Product saveProduct(ProductDto productDto) {
-        // ======== Check if product images surpasses limit ========
-        // if(productDto.getProductImages().size() > 4) {
-        //     throw new IllegalArgumentException("Product can't have more than 4 images");
-        // }
+    public Product saveProduct(Long userId, UploadProductDto uploadProductDto) {
+        // ======== Check Images Count ========
+        if(uploadProductDto.getImages().length > 4) {
+            throw new IllegalArgumentException("Max 4 images");
+        }
+        
+        // ======== Check if category exists ========
+        Optional<Category> categoryExist = categoryRepository.findById(uploadProductDto.getCategoryId());
+        if(!categoryExist.isPresent()) {
+            throw new IllegalArgumentException("Category not found");
+        }
 
-        if(productDto.getName() != null && productDto.getDescription() != null && productDto.getCategoryId() != null &&
-                productDto.getPrice() != null && productDto.getAddress() != null) {
-
+        // ======== Check if there are any nulls ========
+        if(uploadProductDto.getName() != null && uploadProductDto.getDescription() != null && uploadProductDto.getCategoryId() != null &&
+            uploadProductDto.getPrice() != null && uploadProductDto.getAddress() != null) {
+            
+            // ======== Assign DTO to Model ========
             Product product = new Product();
-            product.setName(productDto.getName());
-            product.setDescription(productDto.getDescription());
-            product.setPrice(productDto.getPrice());
-            product.setAddress(productDto.getAddress());
+            product.setName(uploadProductDto.getName());
+            product.setDescription(uploadProductDto.getDescription());
+            product.setPrice(uploadProductDto.getPrice());
+            product.setAddress(uploadProductDto.getAddress());
+            product.setUserId(userId);
+            product.setCategoryId(categoryExist.get().getId());
+            product.setCategory(categoryExist.get());
+            Product productDb = productRepository.save(product);
 
-            Optional<Category> categoryExist = categoryRepository.findById(productDto.getCategoryId());
-            if(categoryExist.isPresent()) {
-                product.setCategory(categoryExist.get());
+            // ======== Upload Image and Add Image to ProductImage  ========
+            MultipartFile[] images = uploadProductDto.getImages();
+            for (int i = 0; i < images.length; i++) {
+                try {
+                    File convertFile = new File(System.getProperty("java.io.tmpdir") + "/" + images[i].getOriginalFilename());
+                    images[i].transferTo(convertFile);
+                    String imageUrl = (String) SecondhandApplication.cloudinary.uploader().upload(convertFile, ObjectUtils.emptyMap()).get("url");
+                    
+                    ProductImage productImage = new ProductImage();
+                    productImage.setImageName(imageUrl);
+                    productImage.setProductId(productDb.getId());
+                    productImageRepository.save(productImage);
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+                }
             }
 
-            return productRepository.save(product);
+            return productDb;
         } else {
-            return null;
+            String msg = "Product ";
+            msg += uploadProductDto.getName() == null ? "name, " : "";
+            msg += uploadProductDto.getDescription() == null ? "description, " : "";
+            msg += uploadProductDto.getCategoryId() == null ? "category, " : "";
+            msg += uploadProductDto.getPrice() == null ? "price, " : "";
+            msg += uploadProductDto.getAddress() == null ? "address " : "";
+            msg += "can't be null";
+            throw new IllegalArgumentException(msg);
         }
     }
 
