@@ -58,7 +58,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter{
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().mvcMatchers(HttpMethod.OPTIONS, "/**");
         web.ignoring().mvcMatchers(SWAGGER_WHITELIST);
     }
     
