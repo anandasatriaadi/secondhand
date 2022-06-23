@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,6 +30,9 @@ import lombok.extern.slf4j.Slf4j;
 public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilter{
     private final AuthenticationManager authenticationManager;
 
+    @Value("${secondhand.jwtsecret}")
+    private String secretCode;
+
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         String username = request.getParameter("username");
@@ -43,7 +47,8 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         User user = (User) authResult.getPrincipal();
-        Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
+        secretCode = System.getenv("jwtsecret") == null ? System.getenv("jwtsecret") : secretCode;
+        Algorithm algorithm = Algorithm.HMAC256(secretCode.getBytes());
 
         // ======== Generate Access Token ========
         String accessToken = JWT.create()

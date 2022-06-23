@@ -8,6 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +23,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class UserAuthorizationFilter extends OncePerRequestFilter{
+    @Value("${secondhand.jwtsecret}")
+    private String secretCode;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -35,6 +38,8 @@ public class UserAuthorizationFilter extends OncePerRequestFilter{
                 filterChain.doFilter(request, response);
             } else {
                 try {
+                    secretCode = System.getenv("jwtsecret") == null ? System.getenv("jwtsecret") : secretCode;
+                    
                     String token = authHeader.substring("Bearer ".length());
                     Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
                     JWTVerifier verifier = JWT.require(algorithm).build();
