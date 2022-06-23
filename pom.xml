@@ -97,6 +97,7 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -105,7 +106,33 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+			<plugin>
+				<groupId>com.hubspot.maven.plugins</groupId>
+				<artifactId>prettier-maven-plugin</artifactId>
+				<version>0.18</version>
+				<configuration>
+					<prettierJavaVersion>1.6.2</prettierJavaVersion>
+					<printWidth>140</printWidth>
+					<tabWidth>4</tabWidth>
+					<useTabs>false</useTabs>
+					<ignoreConfigFile>true</ignoreConfigFile>
+					<ignoreEditorConfig>true</ignoreEditorConfig>
+					<inputGlobs>
+						<inputGlob>src/main/java/**/*.java</inputGlob>
+						<inputGlob>src/test/java/**/*.java</inputGlob>
+					</inputGlobs>
+				</configuration>
+				<executions>
+					<execution>
+						<?m2e execute onConfiguration?>
+						<phase>validate</phase>
+						<goals>
+							<goal>write</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
-
 </project>

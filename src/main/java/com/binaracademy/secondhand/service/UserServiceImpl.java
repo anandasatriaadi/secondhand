@@ -1,9 +1,13 @@
 package com.binaracademy.secondhand.service;
 
+import com.binaracademy.secondhand.dto.UserDto;
+import com.binaracademy.secondhand.model.User;
+import com.binaracademy.secondhand.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,15 +16,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.binaracademy.secondhand.dto.UserDto;
-import com.binaracademy.secondhand.model.User;
-import com.binaracademy.secondhand.repository.UserRepository;
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class UserServiceImpl implements UserService, UserDetailsService {
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-@Service @RequiredArgsConstructor @Slf4j
-public class UserServiceImpl implements UserService, UserDetailsService{
     @Autowired
     private final UserRepository userRepository;
 
@@ -30,7 +30,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Override
     public User saveUser(UserDto userDto) {
         log.info("Saving User");
-        if(userDto.getUsername() != null && userDto.getPassword() != null && userDto.getEmail() != null) {
+        if (userDto.getUsername() != null && userDto.getPassword() != null && userDto.getEmail() != null) {
             User user = new User();
             user.setUsername(userDto.getUsername());
             user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
@@ -60,7 +60,7 @@ public class UserServiceImpl implements UserService, UserDetailsService{
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
-        if(user == null) {
+        if (user == null) {
             log.error("User not found in the database");
             throw new UsernameNotFoundException("User not found in the database");
         } else {
@@ -71,5 +71,4 @@ public class UserServiceImpl implements UserService, UserDetailsService{
 
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
     }
-    
 }
