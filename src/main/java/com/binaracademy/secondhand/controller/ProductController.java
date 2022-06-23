@@ -1,7 +1,6 @@
 package com.binaracademy.secondhand.controller;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -10,10 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.binaracademy.secondhand.dto.UploadProductDto;
@@ -42,19 +40,34 @@ public class ProductController {
     }
 
     @PostMapping("/product/save")
-    public ResponseEntity<String> saveProduct(Authentication authentication, @ModelAttribute UploadProductDto uploadProductDto, @RequestParam("images") MultipartFile[] images) {
+    public ResponseEntity<String> saveProduct(Authentication authentication, @ModelAttribute UploadProductDto uploadProductDto) {
         log.info(authentication.getPrincipal().toString() + " saving a product.");
 
         // ======== Return Bad Request on Incomplete Request ========
         try {
-            log.info(Arrays.toString(images));
             productService.saveProduct(authentication.getPrincipal().toString(), uploadProductDto);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
 
         // ======== Return Created on User Registration Success ========
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/register").toUriString());
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/product/save").toUriString());
         return ResponseEntity.created(uri).body("Product saved successfully.");
+    }
+
+    @PutMapping("/product/{id}/update")
+    public ResponseEntity<String> updateProduct(Authentication authentication,@PathVariable Long id, @ModelAttribute UploadProductDto uploadProductDto) {
+        log.info(authentication.getPrincipal().toString() + " updating a product.");
+
+        // ======== Return Bad Request on Incomplete Request ========
+        try {
+            productService.updateProduct(authentication.getPrincipal().toString(), id, uploadProductDto);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+        // ======== Return Created on User Registration Success ========
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path(String.format("/api/product/%s/update", id)).toUriString());
+        return ResponseEntity.created(uri).body("Product updated successfully.");
     }
 }

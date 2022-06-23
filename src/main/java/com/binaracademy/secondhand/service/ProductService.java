@@ -9,6 +9,7 @@ import com.binaracademy.secondhand.model.ProductOffer;
 
 public interface ProductService {
 	Product saveProduct(String username, UploadProductDto uploadproductDto);
+	Product updateProduct(String username, Long id, UploadProductDto uploadproductDto);
 	Product getProduct(Long id);
 	List<ProductOffer> getAllProductOffers(Long productId);
 	List<ProductImage> getAllProductImages(Long productId);
