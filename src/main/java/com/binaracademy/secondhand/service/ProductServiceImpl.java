@@ -103,10 +103,12 @@ public class ProductServiceImpl implements ProductService {
             product.setCategory(categoryExist.get());
             Product productDb = productRepository.save(product);
 
-            List<ProductImage> oldImages = productRepository.findAllProductImages(id);
-            productImageService.deleteProductImages(oldImages);
-
-            productImageService.saveProductImages(productDb.getId(), uploadProductDto.getImages());
+            if(uploadProductDto.getImages().length > 0) {
+                List<ProductImage> oldImages = productRepository.findAllProductImages(id);
+                productImageService.deleteProductImages(oldImages);
+    
+                productImageService.saveProductImages(productDb.getId(), uploadProductDto.getImages());
+            }
 
             return productDb;
         } catch (Exception e) {
