@@ -150,12 +150,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public boolean deleteProduct(String username, Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow();
-        if (userRepository.findByUsername(username).getId() == product.getUserId()) {
-            List<ProductImage> oldImages = productRepository.findAllProductImages(productId);
-            productImageService.deleteProductImages(oldImages);
-            productRepository.deleteById(productId);
-            return true;
+        Optional<Product> res = productRepository.findById(productId);
+        Product product = null;
+        if (res.isPresent()) {
+            product = res.get();
+            if (userRepository.findByUsername(username).getId() == product.getUserId()) {
+                List<ProductImage> oldImages = productRepository.findAllProductImages(productId);
+                productImageService.deleteProductImages(oldImages);
+                productRepository.deleteById(productId);
+                return true;
+            }
         }
         return false;
     }

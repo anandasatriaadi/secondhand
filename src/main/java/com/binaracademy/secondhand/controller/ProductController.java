@@ -5,7 +5,6 @@ import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.model.ProductImage;
 import com.binaracademy.secondhand.service.ProductService;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +41,7 @@ public class ProductController {
         @RequestParam("size") int size
     ) {
         if (!search.equals("")) {
-            String[] texts = search.replaceAll(" ", "").split("");
+            String[] texts = search.replace(" ", "").split("");
             search = String.join("%", texts);
         }
 
