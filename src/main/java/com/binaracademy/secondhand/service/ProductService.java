@@ -12,7 +12,7 @@ public interface ProductService {
     Product getProduct(Long productId);
     List<ProductOffer> getAllProductOffers(Long productId);
     List<ProductImage> getAllProductImages(Long productId);
-    List<Product> getAllProducts(int page, int size);
+    List<Product> getAllProducts(String search, int page, int size);
     List<Product> getProductsByCategory(Long categoryId, int page, int size);
     boolean deleteProduct(String username, Long productId);
 }

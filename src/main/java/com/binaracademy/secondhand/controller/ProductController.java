@@ -5,6 +5,7 @@ import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.model.ProductImage;
 import com.binaracademy.secondhand.service.ProductService;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,8 +36,17 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getAllProducts(@RequestParam("page") int page, @RequestParam("size") int size) {
-        return ResponseEntity.ok(productService.getAllProducts(page, size));
+    public ResponseEntity<List<Product>> getAllProducts(
+        @RequestParam(defaultValue = "", required = false) String search,
+        @RequestParam("page") int page,
+        @RequestParam("size") int size
+    ) {
+        if (!search.equals("")) {
+            String[] texts = search.replaceAll(" ", "").split("");
+            search = String.join("%", texts);
+        }
+
+        return ResponseEntity.ok(productService.getAllProducts(search, page, size));
     }
 
     @GetMapping("/product/category/{categoryId}")

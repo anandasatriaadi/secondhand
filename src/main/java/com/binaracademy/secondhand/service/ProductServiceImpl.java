@@ -11,12 +11,14 @@ import com.binaracademy.secondhand.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
@@ -133,8 +135,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getAllProducts(int page, int size) {
-        return productRepository.findAll(PageRequest.of(page, size)).getContent();
+    public List<Product> getAllProducts(String search, int page, int size) {
+        if (search.equals("")) {
+            return productRepository.findAll(PageRequest.of(page, size)).getContent();
+        }
+        log.info("Searching for product: " + search);
+        return productRepository.findAllAndSearch(search, PageRequest.of(page, size));
     }
 
     @Override
