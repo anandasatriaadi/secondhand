@@ -13,6 +13,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -134,8 +135,33 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<Product> getAllProducts(String search, int page, int size) {
+        if (search.equals("")) {
+            return productRepository.findAll(PageRequest.of(page, size)).getContent();
+        }
+        log.info("Searching for product: " + search);
+        return productRepository.findAllAndSearch(search, PageRequest.of(page, size));
+    }
+
+    @Override
+    public List<Product> getProductsByCategory(Long categoryId, int page, int size) {
+        return productRepository.findProductsByCategory(categoryId, PageRequest.of(page, size));
+    }
+
+    @Override
+    public boolean deleteProduct(String username, Long productId) {
+        Optional<Product> res = productRepository.findById(productId);
+        Product product = null;
+        if (res.isPresent()) {
+            product = res.get();
+            if (userRepository.findByUsername(username).getId() == product.getUserId()) {
+                List<ProductImage> oldImages = productRepository.findAllProductImages(productId);
+                productImageService.deleteProductImages(oldImages);
+                productRepository.deleteById(productId);
+                return true;
+            }
+        }
+        return false;
     }
 
     // ========================================================================

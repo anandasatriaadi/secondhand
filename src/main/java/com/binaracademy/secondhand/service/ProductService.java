@@ -8,9 +8,11 @@ import java.util.List;
 
 public interface ProductService {
     Product saveProduct(String username, UploadProductDto uploadproductDto);
-    Product updateProduct(String username, Long id, UploadProductDto uploadproductDto);
-    Product getProduct(Long id);
+    Product updateProduct(String username, Long productId, UploadProductDto uploadproductDto);
+    Product getProduct(Long productId);
     List<ProductOffer> getAllProductOffers(Long productId);
     List<ProductImage> getAllProductImages(Long productId);
-    List<Product> getAllProducts();
+    List<Product> getAllProducts(String search, int page, int size);
+    List<Product> getProductsByCategory(Long categoryId, int page, int size);
+    boolean deleteProduct(String username, Long productId);
 }
