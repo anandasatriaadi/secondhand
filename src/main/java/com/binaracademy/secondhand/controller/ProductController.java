@@ -8,14 +8,17 @@ import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -28,8 +31,17 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping("/products")
-    public ResponseEntity<List<Product>> getAllProducts() {
-        return ResponseEntity.ok(productService.getAllProducts());
+    public ResponseEntity<List<Product>> getAllProducts(@RequestParam("page") int page, @RequestParam("size") int size) {
+        return ResponseEntity.ok(productService.getAllProducts(page, size));
+    }
+
+    @GetMapping("/product/category/{categoryId}")
+    public ResponseEntity<List<Product>> getProductsByCategory(
+        @PathVariable Long categoryId,
+        @RequestParam("page") int page,
+        @RequestParam("size") int size
+    ) {
+        return ResponseEntity.ok(productService.getProductsByCategory(categoryId, page, size));
     }
 
     @GetMapping("/product/{id}/images")
@@ -39,12 +51,12 @@ public class ProductController {
 
     @PostMapping("/product/save")
     public ResponseEntity<String> saveProduct(Authentication authentication, @ModelAttribute UploadProductDto uploadProductDto) {
-        log.info(authentication.getPrincipal().toString() + " saving a product.");
-
         // ======== Return Bad Request on Incomplete Request ========
         try {
             productService.saveProduct(authentication.getPrincipal().toString(), uploadProductDto);
+            log.info("Success - " + authentication.getPrincipal().toString() + " saving product");
         } catch (Exception e) {
+            log.info("Failed - " + authentication.getPrincipal().toString() + " saving product");
             return ResponseEntity.badRequest().body(e.getMessage());
         }
 
@@ -59,12 +71,12 @@ public class ProductController {
         @PathVariable Long id,
         @ModelAttribute UploadProductDto uploadProductDto
     ) {
-        log.info(authentication.getPrincipal().toString() + " updating a product.");
-
         // ======== Return Bad Request on Incomplete Request ========
         try {
             productService.updateProduct(authentication.getPrincipal().toString(), id, uploadProductDto);
+            log.info("Success - " + authentication.getPrincipal().toString() + " updating product");
         } catch (Exception e) {
+            log.info("Failed - " + authentication.getPrincipal().toString() + " updating product");
             return ResponseEntity.badRequest().body(e.getMessage());
         }
 
@@ -73,5 +85,17 @@ public class ProductController {
             ServletUriComponentsBuilder.fromCurrentContextPath().path(String.format("/api/product/%s/update", id)).toUriString()
         );
         return ResponseEntity.created(uri).body("Product updated successfully.");
+    }
+
+    @DeleteMapping("/product/{id}/delete")
+    public ResponseEntity<String> deleteProduct(Authentication authentication, @PathVariable Long id) {
+        try {
+            productService.deleteProduct(authentication.getPrincipal().toString(), id);
+            log.info("Success - " + authentication.getPrincipal().toString() + " deleting product");
+        } catch (Exception e) {
+            log.info("Failed - " + authentication.getPrincipal().toString() + " deleting product");
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+        return ResponseEntity.ok().body("Product deleted successfully");
     }
 }

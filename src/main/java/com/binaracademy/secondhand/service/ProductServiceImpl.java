@@ -11,13 +11,12 @@ import com.binaracademy.secondhand.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ProductServiceImpl implements ProductService {
 
     @Autowired
@@ -134,8 +133,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+    public List<Product> getAllProducts(int page, int size) {
+        return productRepository.findAll(PageRequest.of(page, size)).getContent();
+    }
+
+    @Override
+    public List<Product> getProductsByCategory(Long categoryId, int page, int size) {
+        return productRepository.findProductsByCategory(categoryId, PageRequest.of(page, size));
+    }
+
+    @Override
+    public boolean deleteProduct(String username, Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow();
+        if (userRepository.findByUsername(username).getId() == product.getUserId()) {
+            List<ProductImage> oldImages = productRepository.findAllProductImages(productId);
+            productImageService.deleteProductImages(oldImages);
+            productRepository.deleteById(productId);
+            return true;
+        }
+        return false;
     }
 
     // ========================================================================
