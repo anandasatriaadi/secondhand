@@ -26,7 +26,10 @@ public class UserController {
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
+        if (!System.getenv("SPRING_PROFILES_ACTIVE").equals("production")) {
+            return ResponseEntity.ok(userService.getAllUsers());
+        }
+        return null;
     }
 
     @PostMapping("/register")

@@ -8,7 +8,7 @@ import java.net.URI;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,6 +28,10 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @Slf4j
 public class ProductController {
 
+    private final String MSG_SUCCESS = "Success - ";
+    private final String MSG_FAILED = "Failed - ";
+
+    @Autowired
     private final ProductService productService;
 
     @GetMapping("/products")
@@ -54,9 +58,9 @@ public class ProductController {
         // ======== Return Bad Request on Incomplete Request ========
         try {
             productService.saveProduct(authentication.getPrincipal().toString(), uploadProductDto);
-            log.info("Success - " + authentication.getPrincipal().toString() + " saving product");
+            log.info(MSG_SUCCESS + authentication.getPrincipal().toString() + " saving product");
         } catch (Exception e) {
-            log.info("Failed - " + authentication.getPrincipal().toString() + " saving product");
+            log.info(MSG_FAILED + authentication.getPrincipal().toString() + " saving product");
             return ResponseEntity.badRequest().body(e.getMessage());
         }
 
@@ -74,9 +78,9 @@ public class ProductController {
         // ======== Return Bad Request on Incomplete Request ========
         try {
             productService.updateProduct(authentication.getPrincipal().toString(), id, uploadProductDto);
-            log.info("Success - " + authentication.getPrincipal().toString() + " updating product");
+            log.info(MSG_SUCCESS + authentication.getPrincipal().toString() + " updating product");
         } catch (Exception e) {
-            log.info("Failed - " + authentication.getPrincipal().toString() + " updating product");
+            log.info(MSG_FAILED + authentication.getPrincipal().toString() + " updating product");
             return ResponseEntity.badRequest().body(e.getMessage());
         }
 
@@ -91,9 +95,9 @@ public class ProductController {
     public ResponseEntity<String> deleteProduct(Authentication authentication, @PathVariable Long id) {
         try {
             productService.deleteProduct(authentication.getPrincipal().toString(), id);
-            log.info("Success - " + authentication.getPrincipal().toString() + " deleting product");
+            log.info(MSG_SUCCESS + authentication.getPrincipal().toString() + " deleting product");
         } catch (Exception e) {
-            log.info("Failed - " + authentication.getPrincipal().toString() + " deleting product");
+            log.info(MSG_FAILED + authentication.getPrincipal().toString() + " deleting product");
             return ResponseEntity.badRequest().body(e.getMessage());
         }
         return ResponseEntity.ok().body("Product deleted successfully");
