@@ -14,7 +14,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -37,13 +39,13 @@ public class ProductServiceImpl implements ProductService {
     public Product saveProduct(String username, UploadProductDto uploadProductDto) {
         // ======== Check Images Count ========
         if (uploadProductDto.getImages().length > 4) {
-            throw new IllegalArgumentException("Max 4 images");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max 4 images");
         }
 
         // ======== Check if category exists ========
         Optional<Category> categoryExist = categoryRepository.findById(uploadProductDto.getCategoryId());
         if (!categoryExist.isPresent()) {
-            throw new IllegalArgumentException("Category not found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category not found");
         }
 
         try {
@@ -64,8 +66,11 @@ public class ProductServiceImpl implements ProductService {
             productImageService.saveProductImages(productDb.getId(), uploadProductDto.getImages());
 
             return productDb;
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            log.error(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
     }
 
@@ -73,18 +78,18 @@ public class ProductServiceImpl implements ProductService {
     public Product updateProduct(String username, Long id, UploadProductDto uploadProductDto) {
         // ======== Check Repository ========
         if (!productRepository.findById(id).isPresent()) {
-            throw new IllegalArgumentException("Product not found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product not found");
         }
 
         // ======== Check Images Count ========
         if (uploadProductDto.getImages().length > 4) {
-            throw new IllegalArgumentException("Max 4 images");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max 4 images");
         }
 
         // ======== Check if category exists ========
         Optional<Category> categoryExist = categoryRepository.findById(uploadProductDto.getCategoryId());
         if (!categoryExist.isPresent()) {
-            throw new IllegalArgumentException("Category not found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Category not found");
         }
 
         try {
@@ -103,16 +108,19 @@ public class ProductServiceImpl implements ProductService {
             product.setCategory(categoryExist.get());
             Product productDb = productRepository.save(product);
 
-            if(uploadProductDto.getImages().length > 0) {
+            if (uploadProductDto.getImages().length > 0) {
                 List<ProductImage> oldImages = productRepository.findAllProductImages(id);
                 productImageService.deleteProductImages(oldImages);
-    
+
                 productImageService.saveProductImages(productDb.getId(), uploadProductDto.getImages());
             }
 
             return productDb;
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            log.error(e.getMessage());
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
     }
 
