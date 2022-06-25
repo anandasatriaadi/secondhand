@@ -1,10 +1,10 @@
 package com.binaracademy.secondhand.controller;
 
 import com.binaracademy.secondhand.dto.CategoryDto;
+import com.binaracademy.secondhand.dto.RestDto;
 import com.binaracademy.secondhand.model.Category;
 import com.binaracademy.secondhand.service.CategoryService;
 import java.net.URI;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,22 +26,20 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @PostMapping("/category/save")
-    public ResponseEntity<Object> saveCategory(@RequestBody CategoryDto categoryDto) {
-        Category result = null;
-        try {
-            result = categoryService.saveCategory(categoryDto);
+    public ResponseEntity<RestDto> saveCategory(@RequestBody CategoryDto categoryDto) {
+        if (categoryDto.getCategoryName() != null) {
+            Category result = categoryService.saveCategory(categoryDto);
             log.info("Success - saving category");
-        } catch (Exception e) {
-            log.info("Failed - saving category");
-            return ResponseEntity.badRequest().body(e.getMessage());
+            URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/category/save").toUriString());
+            return ResponseEntity.created(uri).body(new RestDto(201, "Category created", result));
         }
 
-        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/category/save").toUriString());
-        return ResponseEntity.created(uri).body(result);
+        log.info("Failed - saving category");
+        return ResponseEntity.badRequest().body(new RestDto(400, "Category name cannot be empty", ""));
     }
 
     @GetMapping("/categories")
-    public ResponseEntity<List<Category>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
+    public ResponseEntity<RestDto> getAllCategories() {
+        return ResponseEntity.ok(new RestDto(200, "ok", categoryService.getAllCategories()));
     }
 }
