@@ -2,6 +2,7 @@ package com.binaracademy.secondhand.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.binaracademy.secondhand.dto.RestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Date;
@@ -70,6 +71,6 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        new ObjectMapper().writeValue(response.getOutputStream(), tokens);
+        new ObjectMapper().writeValue(response.getOutputStream(), new RestDto(200, "ok", tokens));
     }
 }
