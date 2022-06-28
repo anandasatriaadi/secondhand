@@ -3,7 +3,7 @@ package com.binaracademy.secondhand.dto;
 import lombok.Data;
 
 @Data
-public class UserDto {
+public class UploadUserDto {
 
     private String email;
     private String username;
@@ -12,4 +12,5 @@ public class UserDto {
     private String lastName;
     private String phoneNumber;
     private String address;
+    private String city;
 }
