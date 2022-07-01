@@ -15,9 +15,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 @EnableWebSecurity
@@ -49,6 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         UserAuthenticationFilter customFilter = new UserAuthenticationFilter(authenticationManagerBean());
         customFilter.setFilterProcessesUrl("/api/login");
 
+        http.cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues());
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
         http.authorizeRequests().antMatchers("/api/login").permitAll();
