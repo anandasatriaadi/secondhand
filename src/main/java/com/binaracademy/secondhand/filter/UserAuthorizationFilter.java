@@ -18,6 +18,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.NestedServletException;
 
 @Slf4j
 public class UserAuthorizationFilter extends OncePerRequestFilter {
@@ -50,11 +51,17 @@ public class UserAuthorizationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
                     filterChain.doFilter(request, response);
+                } catch (NestedServletException e) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+                    new ObjectMapper()
+                        .writeValue(response.getOutputStream(), new RestDto(HttpServletResponse.SC_BAD_REQUEST, "Max image size 1MB", ""));
                 } catch (Exception e) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     new ObjectMapper()
                         .writeValue(response.getOutputStream(), new RestDto(HttpServletResponse.SC_UNAUTHORIZED, "Token expired", ""));
+                    e.printStackTrace();
                     log.error("Error processing JWT");
                 }
             }

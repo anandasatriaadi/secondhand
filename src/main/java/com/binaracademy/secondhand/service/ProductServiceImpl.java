@@ -8,6 +8,7 @@ import com.binaracademy.secondhand.model.ProductOffer;
 import com.binaracademy.secondhand.repository.CategoryRepository;
 import com.binaracademy.secondhand.repository.ProductRepository;
 import com.binaracademy.secondhand.repository.UserRepository;
+import com.binaracademy.secondhand.util.enums.ProductStatus;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -36,10 +37,15 @@ public class ProductServiceImpl implements ProductService {
     private ProductImageService productImageService;
 
     @Override
-    public Product saveProduct(String username, UploadProductDto uploadProductDto) {
+    public Product saveProduct(String username, UploadProductDto uploadProductDto) throws ResponseStatusException {
         // ======== Check Images Count ========
-        if (uploadProductDto.getImages().length > 4) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max 4 images");
+        if (uploadProductDto.getImages().length > 4 || uploadProductDto.getImages().length == 1) {
+            if (uploadProductDto.getImages().length > 4) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max 4 images");
+            }
+            if (uploadProductDto.getImages().length == 1 && uploadProductDto.getImages()[0].getOriginalFilename().equals("")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Min 1 image");
+            }
         }
 
         // ======== Check if category exists ========
@@ -58,6 +64,7 @@ public class ProductServiceImpl implements ProductService {
             product.setDescription(uploadProductDto.getDescription());
             product.setPrice(uploadProductDto.getPrice());
             product.setAddress(uploadProductDto.getAddress());
+            product.setProductStatus(ProductStatus.PUBLISHED);
             product.setUserId(userId);
             product.setCategoryId(categoryExist.get().getId());
             product.setCategory(categoryExist.get());
@@ -75,9 +82,9 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Product updateProduct(String username, Long id, UploadProductDto uploadProductDto) {
+    public Product updateProduct(String username, Long productId, UploadProductDto uploadProductDto) {
         // ======== Check Repository ========
-        if (!productRepository.findById(id).isPresent()) {
+        if (!productRepository.findById(productId).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product not found");
         }
 
@@ -98,18 +105,19 @@ public class ProductServiceImpl implements ProductService {
 
             // ======== Assign DTO to Model ========
             Product product = new Product();
-            product.setId(id);
+            product.setId(productId);
             product.setName(uploadProductDto.getName());
             product.setDescription(uploadProductDto.getDescription());
             product.setPrice(uploadProductDto.getPrice());
             product.setAddress(uploadProductDto.getAddress());
+            product.setProductStatus(ProductStatus.PUBLISHED);
             product.setUserId(userId);
             product.setCategoryId(categoryExist.get().getId());
             product.setCategory(categoryExist.get());
             Product productDb = productRepository.save(product);
 
             if (uploadProductDto.getImages().length > 0) {
-                List<ProductImage> oldImages = productRepository.findAllProductImages(id);
+                List<ProductImage> oldImages = productRepository.findAllProductImages(productId);
                 productImageService.deleteProductImages(oldImages);
 
                 productImageService.saveProductImages(productDb.getId(), uploadProductDto.getImages());
@@ -122,6 +130,19 @@ public class ProductServiceImpl implements ProductService {
             log.error(e.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
+    }
+
+    @Override
+    public Product setProductSold(Long productId) {
+        Optional<Product> result = productRepository.findById(productId);
+        // ======== Check Repository ========
+        if (!result.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product not found");
+        }
+
+        Product product = result.get();
+        product.setProductStatus(ProductStatus.SOLD);
+        return productRepository.save(product);
     }
 
     @Override
@@ -164,7 +185,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = null;
         if (res.isPresent()) {
             product = res.get();
-            if (userRepository.findByUsername(username).getId() == product.getUserId()) {
+            if (userRepository.findByUsername(username).getId().equals(product.getUserId())) {
                 List<ProductImage> oldImages = productRepository.findAllProductImages(productId);
                 productImageService.deleteProductImages(oldImages);
                 productRepository.deleteById(productId);
@@ -183,14 +204,16 @@ public class ProductServiceImpl implements ProductService {
             uploadProductDto.getDescription() == null ||
             uploadProductDto.getCategoryId() == null ||
             uploadProductDto.getPrice() == null ||
-            uploadProductDto.getAddress() == null
+            uploadProductDto.getAddress() == null ||
+            uploadProductDto.getProductStatus() == null
         ) {
             String msg = "Product ";
             msg += uploadProductDto.getName() == null ? "name, " : "";
             msg += uploadProductDto.getDescription() == null ? "description, " : "";
             msg += uploadProductDto.getCategoryId() == null ? "category, " : "";
             msg += uploadProductDto.getPrice() == null ? "price, " : "";
-            msg += uploadProductDto.getAddress() == null ? "address " : "";
+            msg += uploadProductDto.getAddress() == null ? "address, " : "";
+            msg += uploadProductDto.getProductStatus() == null ? "product status " : "";
             msg += "can't be null";
             throw new IllegalArgumentException(msg);
         }
