@@ -1,9 +1,11 @@
 package com.binaracademy.secondhand.controller;
 
+import com.binaracademy.secondhand.dto.ProductWithImageDto;
 import com.binaracademy.secondhand.dto.RestDto;
 import com.binaracademy.secondhand.dto.UploadProductDto;
 import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.model.ProductImage;
+import com.binaracademy.secondhand.service.ProductImageService;
 import com.binaracademy.secondhand.service.ProductService;
 import java.net.URI;
 import java.util.List;
@@ -32,9 +34,13 @@ public class ProductController {
 
     private final String MSG_SUCCESS = "Success - ";
     private final String MSG_FAILED = "Failed - ";
+    private final String INTERNAL_ERROR_MSG = "Internal Server Error";
 
     @Autowired
     private final ProductService productService;
+
+    @Autowired
+    private final ProductImageService productImageService;
 
     // ========================================================================
     //   Get products with search and pagination
@@ -55,17 +61,17 @@ public class ProductController {
             return ResponseEntity.ok(new RestDto(200, "ok", result));
         } catch (ResponseStatusException e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getMessage(), ""));
+            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getReason(), ""));
         } catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.internalServerError().body(new RestDto(500, "Internal Server Error", ""));
+            return ResponseEntity.internalServerError().body(new RestDto(500, INTERNAL_ERROR_MSG, ""));
         }
     }
 
     // ========================================================================
     //   Get products by category
     // ========================================================================
-    @GetMapping("/product/category/{categoryId}")
+    @GetMapping("/products/category/{categoryId}")
     public ResponseEntity<RestDto> getProductsByCategory(
         @PathVariable Long categoryId,
         @RequestParam("page") int page,
@@ -76,10 +82,10 @@ public class ProductController {
             return ResponseEntity.ok(new RestDto(200, "ok", result));
         } catch (ResponseStatusException e) {
             log.error(e.getMessage());
-            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getMessage(), ""));
+            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getReason(), ""));
         } catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.internalServerError().body(new RestDto(500, "Internal Server Error", ""));
+            return ResponseEntity.internalServerError().body(new RestDto(500, INTERNAL_ERROR_MSG, ""));
         }
     }
 
@@ -87,8 +93,46 @@ public class ProductController {
     //   Get product images
     // ========================================================================
     @GetMapping("/product/{id}/images")
-    public ResponseEntity<List<ProductImage>> getAllProductImages(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(productService.getAllProductImages(id));
+    public ResponseEntity<RestDto> getAllProductImages(@PathVariable("id") Long id) {
+        try {
+            List<ProductImage> result = productService.getAllProductImages(id);
+            return ResponseEntity.ok(new RestDto(200, "ok", result));
+        } catch (ResponseStatusException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getReason(), ""));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError().body(new RestDto(500, INTERNAL_ERROR_MSG, ""));
+        }
+    }
+
+    // ========================================================================
+    //   Get product detail
+    // ========================================================================
+    @GetMapping("/product/{id}/detail")
+    public ResponseEntity<RestDto> getProductDetail(@PathVariable("id") Long id) {
+        try {
+            Product prodResult = productService.getProduct(id);
+            List<ProductImage> prodImageResult = productImageService.getProductImage(id);
+
+            ProductWithImageDto response = new ProductWithImageDto();
+            response.setId(prodResult.getId());
+            response.setName(prodResult.getName());
+            response.setDescription(prodResult.getDescription());
+            response.setPrice(prodResult.getPrice());
+            response.setAddress(prodResult.getAddress());
+            response.setUserId(prodResult.getUserId());
+            response.setCategoryId(prodResult.getCategoryId());
+            response.setProductImages(prodImageResult);
+
+            return ResponseEntity.ok(new RestDto(200, "ok", response));
+        } catch (ResponseStatusException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getReason(), ""));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError().body(new RestDto(500, INTERNAL_ERROR_MSG, ""));
+        }
     }
 
     // ========================================================================
@@ -101,10 +145,10 @@ public class ProductController {
             log.info(MSG_SUCCESS + authentication.getPrincipal().toString() + " saving product");
         } catch (ResponseStatusException e) {
             log.info(MSG_FAILED + authentication.getPrincipal().toString() + " saving product");
-            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getMessage(), ""));
+            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getReason(), ""));
         } catch (Exception e) {
-            log.error(e.getMessage());
-            return ResponseEntity.badRequest().body(new RestDto(500, "Internal Server Error", ""));
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(new RestDto(500, INTERNAL_ERROR_MSG, ""));
         }
 
         // ======== Return Created on User Registration Success ========
@@ -126,15 +170,38 @@ public class ProductController {
             log.info(MSG_SUCCESS + authentication.getPrincipal().toString() + " updating product");
         } catch (ResponseStatusException e) {
             log.info(MSG_FAILED + authentication.getPrincipal().toString() + " updating product");
-            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getMessage(), ""));
+            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getReason(), ""));
         } catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.badRequest().body(new RestDto(500, "Internal Server Error", ""));
+            return ResponseEntity.badRequest().body(new RestDto(500, INTERNAL_ERROR_MSG, ""));
         }
 
         // ======== Return Created on User Registration Success ========
         URI uri = URI.create(
             ServletUriComponentsBuilder.fromCurrentContextPath().path(String.format("/api/product/%s/update", id)).toUriString()
+        );
+        return ResponseEntity.created(uri).body(new RestDto(200, "ok", "Product updated successfully"));
+    }
+
+    // ========================================================================
+    //   Update product status to sold
+    // ========================================================================
+    @GetMapping("/product/{id}/sold")
+    public ResponseEntity<RestDto> setProductSold(@PathVariable Long id) {
+        try {
+            productService.setProductSold(id);
+            log.info(MSG_SUCCESS + " sold product");
+        } catch (ResponseStatusException e) {
+            log.info(MSG_FAILED + " sold product");
+            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getReason(), ""));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().body(new RestDto(500, INTERNAL_ERROR_MSG, ""));
+        }
+
+        // ======== Return Created on User Registration Success ========
+        URI uri = URI.create(
+            ServletUriComponentsBuilder.fromCurrentContextPath().path(String.format("/api/product/%s/sold", id)).toUriString()
         );
         return ResponseEntity.created(uri).body(new RestDto(200, "ok", "Product updated successfully"));
     }
@@ -149,10 +216,10 @@ public class ProductController {
             log.info(MSG_SUCCESS + authentication.getPrincipal().toString() + " deleting product");
         } catch (ResponseStatusException e) {
             log.info(MSG_FAILED + authentication.getPrincipal().toString() + " deleting product");
-            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getMessage(), ""));
+            return ResponseEntity.status(e.getStatus()).body(new RestDto(e.getRawStatusCode(), e.getReason(), ""));
         } catch (Exception e) {
             log.error(e.getMessage());
-            return ResponseEntity.badRequest().body(new RestDto(500, "Internal Server Error", ""));
+            return ResponseEntity.badRequest().body(new RestDto(500, INTERNAL_ERROR_MSG, ""));
         }
 
         return ResponseEntity.ok().body(new RestDto(200, "Product deleted successfully", ""));

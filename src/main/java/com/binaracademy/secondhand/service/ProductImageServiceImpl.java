@@ -23,6 +23,11 @@ public class ProductImageServiceImpl implements ProductImageService {
     private ProductImageRepository productImageRepository;
 
     @Override
+    public List<ProductImage> getProductImage(Long productId) {
+        return productImageRepository.findImageByProductId(productId);
+    }
+
+    @Override
     public boolean saveProductImages(Long productId, MultipartFile[] images) {
         for (int i = 0; i < images.length; i++) {
             try {

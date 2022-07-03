@@ -1,22 +1,25 @@
 package com.binaracademy.secondhand.dto;
 
+import com.binaracademy.secondhand.model.ProductImage;
 import com.binaracademy.secondhand.util.enums.ProductStatus;
+import java.util.List;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class UploadProductDto {
+public class ProductWithImageDto {
 
+    private Long id;
     private String name;
     private String description;
     private Double price;
     private String address;
-    private Long categoryId;
 
     @Enumerated(EnumType.STRING)
     private ProductStatus productStatus;
 
-    private MultipartFile[] images;
+    private Long userId;
+    private Long categoryId;
+    private List<ProductImage> productImages;
 }

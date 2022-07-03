@@ -9,6 +9,7 @@ import java.util.List;
 public interface ProductService {
     Product saveProduct(String username, UploadProductDto uploadproductDto);
     Product updateProduct(String username, Long productId, UploadProductDto uploadproductDto);
+    Product setProductSold(Long productId);
     Product getProduct(Long productId);
     List<ProductOffer> getAllProductOffers(Long productId);
     List<ProductImage> getAllProductImages(Long productId);

@@ -1,6 +1,9 @@
 package com.binaracademy.secondhand.model;
 
+import com.binaracademy.secondhand.util.enums.ProductStatus;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -26,6 +29,10 @@ public class Product {
     private String description;
     private Double price;
     private String address;
+
+    @Enumerated(EnumType.STRING)
+    private ProductStatus productStatus;
+
     private Long userId;
     private Long categoryId;
 
