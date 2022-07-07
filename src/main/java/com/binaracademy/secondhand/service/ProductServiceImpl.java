@@ -36,6 +36,11 @@ public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductImageService productImageService;
 
+    // ========================================================================
+    //   START ::: CREATE PRODUCT SECTION
+    // ========================================================================
+
+    // ======== Create/save product ========
     @Override
     public Product saveProduct(String username, UploadProductDto uploadProductDto) throws ResponseStatusException {
         // ======== Check Images Count ========
@@ -81,6 +86,62 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    // ========================================================================
+    //   END ::: CREATE PRODUCT SECTION
+    // ========================================================================
+
+    // ========================================================================
+    //   START ::: READ PRODUCT SECTION
+    // ========================================================================
+
+    // ======== Get product detail ========
+    @Override
+    public Product getProduct(Long id) {
+        Optional<Product> productExist = productRepository.findById(id);
+        if (productExist.isPresent()) {
+            return productExist.get();
+        } else {
+            return null;
+        }
+    }
+
+    // ======== Get products with search and pagination ========
+    @Override
+    public List<Product> getAllProducts(String search, int page, int size) {
+        if (search.equals("")) {
+            return productRepository.findAll(PageRequest.of(page, size)).getContent();
+        }
+        log.info("Searching for product: " + search);
+        return productRepository.findAllAndSearch(search, PageRequest.of(page, size));
+    }
+
+    // ======== Get products by category ========
+    @Override
+    public List<Product> getProductsByCategory(Long categoryId, int page, int size) {
+        return productRepository.findProductsByCategory(categoryId, PageRequest.of(page, size));
+    }
+
+    // ======== Get product images ========
+    @Override
+    public List<ProductImage> getAllProductImages(Long productId) {
+        return productRepository.findAllProductImages(productId);
+    }
+
+    // ======== Get all product offers ========
+    @Override
+    public List<ProductOffer> getAllProductOffers(Long productId) {
+        return productRepository.findAllProductOffers(productId);
+    }
+
+    // ========================================================================
+    //   END ::: READ PRODUCT SECTION
+    // ========================================================================
+
+    // ========================================================================
+    //   START ::: UPDATE PRODUCT SECTION
+    // ========================================================================
+
+    // ======== Update product ========
     @Override
     public Product updateProduct(String username, Long productId, UploadProductDto uploadProductDto) {
         // ======== Check Repository ========
@@ -132,6 +193,7 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    // ======== Update product status to sold ========
     @Override
     public Product setProductSold(Long productId) {
         Optional<Product> result = productRepository.findById(productId);
@@ -145,40 +207,15 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.save(product);
     }
 
-    @Override
-    public Product getProduct(Long id) {
-        Optional<Product> productExist = productRepository.findById(id);
-        if (productExist.isPresent()) {
-            return productExist.get();
-        } else {
-            return null;
-        }
-    }
+    // ========================================================================
+    //   END ::: UPDATE PRODUCT SECTION
+    // ========================================================================
 
-    @Override
-    public List<ProductOffer> getAllProductOffers(Long productId) {
-        return productRepository.findAllProductOffers(productId);
-    }
+    // ========================================================================
+    //   START ::: DELETE PRODUCT SECTION
+    // ========================================================================
 
-    @Override
-    public List<ProductImage> getAllProductImages(Long productId) {
-        return productRepository.findAllProductImages(productId);
-    }
-
-    @Override
-    public List<Product> getAllProducts(String search, int page, int size) {
-        if (search.equals("")) {
-            return productRepository.findAll(PageRequest.of(page, size)).getContent();
-        }
-        log.info("Searching for product: " + search);
-        return productRepository.findAllAndSearch(search, PageRequest.of(page, size));
-    }
-
-    @Override
-    public List<Product> getProductsByCategory(Long categoryId, int page, int size) {
-        return productRepository.findProductsByCategory(categoryId, PageRequest.of(page, size));
-    }
-
+    // ======== Delete product ========
     @Override
     public boolean deleteProduct(String username, Long productId) {
         Optional<Product> res = productRepository.findById(productId);
@@ -196,8 +233,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     // ========================================================================
+    //   END ::: DELETE PRODUCT SECTION
+    // ========================================================================
+
+    // ========================================================================
     //   HELPER FUNCTIONS
     // ========================================================================
+
+    // ======== Check product dto ========
     private void checkProductDto(UploadProductDto uploadProductDto) throws IllegalArgumentException {
         if (
             uploadProductDto.getName() == null ||

@@ -22,10 +22,9 @@ public class ProductImageServiceImpl implements ProductImageService {
     @Autowired
     private ProductImageRepository productImageRepository;
 
-    @Override
-    public List<ProductImage> getProductImage(Long productId) {
-        return productImageRepository.findImageByProductId(productId);
-    }
+    // ========================================================================
+    //   START ::: CREATE PRODUCT IMAGES SECTION
+    // ========================================================================
 
     @Override
     public boolean saveProductImages(Long productId, MultipartFile[] images) {
@@ -47,6 +46,27 @@ public class ProductImageServiceImpl implements ProductImageService {
         return true;
     }
 
+    // ========================================================================
+    //   END ::: CREATE PRODUCT IMAGES SECTION
+    // ========================================================================
+
+    // ========================================================================
+    //   START ::: READ PRODUCT IMAGES SECTION
+    // ========================================================================
+
+    @Override
+    public List<ProductImage> getProductImage(Long productId) {
+        return productImageRepository.findImageByProductId(productId);
+    }
+
+    // ========================================================================
+    //   END ::: READ PRODUCT IMAGES SECTION
+    // ========================================================================
+
+    // ========================================================================
+    //   START ::: DELETE PRODUCT IMAGES SECTION
+    // ========================================================================
+
     @Override
     public boolean deleteProductImages(List<ProductImage> images) {
         for (ProductImage image : images) {
@@ -64,4 +84,7 @@ public class ProductImageServiceImpl implements ProductImageService {
         }
         return true;
     }
+    // ========================================================================
+    //   END ::: DELETE PRODUCT IMAGES SECTION
+    // ========================================================================
 }
