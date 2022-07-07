@@ -34,6 +34,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         "/webjars/**",
     };
 
+    private final String[] API_PATH_WISHLIST = {
+        "/api/login",
+        "/api/register",
+        "/api/product/**/image",
+        "/api/product/**/detail",
+        "/api/products/category/**",
+        "/api/product**",
+    };
+
     @Autowired
     private UserDetailsService userDetailsService;
 
@@ -53,8 +62,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues());
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
-        http.authorizeRequests().antMatchers("/api/login").permitAll();
-        http.authorizeRequests().antMatchers("/api/register").permitAll();
+        http.authorizeRequests().antMatchers(API_PATH_WISHLIST).permitAll();
         http.authorizeRequests().antMatchers(HttpMethod.OPTIONS).permitAll();
         http.authorizeRequests().antMatchers(SWAGGER_WHITELIST).permitAll();
         http.authorizeRequests().anyRequest().authenticated();

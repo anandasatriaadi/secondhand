@@ -30,6 +30,7 @@ public class UserAuthorizationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } else {
             String authHeader = request.getHeader("Authorization");
+            log.info(request.getRequestURI());
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 filterChain.doFilter(request, response);
