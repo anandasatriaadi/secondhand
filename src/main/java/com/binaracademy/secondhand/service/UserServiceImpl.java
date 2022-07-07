@@ -36,11 +36,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public ResponseUserDto saveUser(UploadUserDto userDto) {
         log.info("Saving User");
-        if (userDto.getPassword() != null && userDto.getEmail() != null) {
+        if (userDto.getPassword() != null && userDto.getEmail() != null && userDto.getFullName() != null) {
             User user = new User();
             user.setEmail(userDto.getEmail());
             user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
-            user.setEmail(userDto.getEmail());
+            user.setFullName(userDto.getFullName());
 
             User result = userRepository.save(user);
             return modelMapper.map(result, ResponseUserDto.class);
@@ -66,9 +66,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public boolean checkUser(String email) {
         User result = userRepository.findByEmail(email);
-        return (
-            result.getFirstName() != null && result.getLastName() != null && result.getPhoneNumber() != null && result.getAddress() != null
-        );
+        return (result.getFullName() != null && result.getPhoneNumber() != null && result.getAddress() != null && result.getCity() != null);
     }
 
     // ========================================================================

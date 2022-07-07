@@ -55,6 +55,14 @@ public class UserController {
     }
 
     // ========================================================================
+    //   Get current logged in user
+    // ========================================================================
+    @GetMapping("/user-info")
+    public ResponseEntity<RestDto> getCurrentuser(Authentication authentication) {
+        return ResponseEntity.ok(new RestDto(200, "ok", userService.getUser(authentication.getPrincipal().toString())));
+    }
+
+    // ========================================================================
     //   Get New Access Token from Refresh token
     // ========================================================================
     @GetMapping("/refresh-token")
@@ -113,7 +121,7 @@ public class UserController {
     public ResponseEntity<RestDto> saveUser(@RequestBody UploadUserDto userDto) {
         // ======== Return Conflict on Username Found ========
         if (userRepository.findByEmail(userDto.getEmail()) != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new RestDto(HttpStatus.CONFLICT.value(), "Username exists", ""));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new RestDto(HttpStatus.CONFLICT.value(), "Email exists", ""));
         }
 
         // ======== Return Bad Request on Incomplete Request ========
