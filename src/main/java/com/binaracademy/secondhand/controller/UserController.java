@@ -77,7 +77,7 @@ public class UserController {
                 // ======== Generate Access Token ========
                 String accessToken = JWT
                     .create()
-                    .withSubject(user.getUsername())
+                    .withSubject(user.getEmail())
                     .withExpiresAt(new Date(System.currentTimeMillis() + 60 * 60 * 1000))
                     .withIssuer(request.getRequestURL().toString())
                     .sign(algorithm);
@@ -85,13 +85,13 @@ public class UserController {
                 // ======== Generate Refresh Token ========
                 String refreshToken = JWT
                     .create()
-                    .withSubject(user.getUsername())
+                    .withSubject(user.getEmail())
                     .withExpiresAt(new Date(System.currentTimeMillis() + 6 * 60 * 60 * 1000))
                     .withIssuer(request.getRequestURL().toString())
                     .sign(algorithm);
 
                 Map<String, String> tokens = new HashMap<>();
-                tokens.put("username", user.getUsername());
+                tokens.put("username", user.getEmail());
                 tokens.put("accessToken", accessToken);
                 tokens.put("refreshToken", refreshToken);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
@@ -112,7 +112,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<RestDto> saveUser(@RequestBody UploadUserDto userDto) {
         // ======== Return Conflict on Username Found ========
-        if (userRepository.findByUsername(userDto.getUsername()) != null) {
+        if (userRepository.findByEmail(userDto.getEmail()) != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new RestDto(HttpStatus.CONFLICT.value(), "Username exists", ""));
         }
 

@@ -36,9 +36,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public ResponseUserDto saveUser(UploadUserDto userDto) {
         log.info("Saving User");
-        if (userDto.getUsername() != null && userDto.getPassword() != null && userDto.getEmail() != null) {
+        if (userDto.getPassword() != null && userDto.getEmail() != null) {
             User user = new User();
-            user.setUsername(userDto.getUsername());
+            user.setEmail(userDto.getEmail());
             user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
             user.setEmail(userDto.getEmail());
 
@@ -50,9 +50,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public ResponseUserDto getUser(String username) {
+    public ResponseUserDto getUser(String email) {
         log.info("Getting User");
-        User result = userRepository.findByUsername(username);
+        User result = userRepository.findByEmail(email);
         return modelMapper.map(result, ResponseUserDto.class);
     }
 
@@ -64,8 +64,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public boolean checkUser(String username) {
-        User result = userRepository.findByUsername(username);
+    public boolean checkUser(String email) {
+        User result = userRepository.findByEmail(email);
         return (
             result.getFirstName() != null && result.getLastName() != null && result.getPhoneNumber() != null && result.getAddress() != null
         );
@@ -75,17 +75,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     //                       USER DETAILS SERVICE
     // ========================================================================
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email);
         if (user == null) {
             log.error("User not found in the database");
             throw new UsernameNotFoundException("User not found in the database");
         } else {
-            log.info("User {} found in the database", username);
+            log.info("User {} found in the database", email);
         }
 
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
+        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
     }
 }

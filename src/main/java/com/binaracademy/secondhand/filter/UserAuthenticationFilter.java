@@ -30,12 +30,12 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
-        String username = request.getParameter("username");
+        String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        log.info("Attempting authentication for user {}", username);
+        log.info("Attempting authentication for user {}", email);
 
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(username, password);
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(email, password);
         return authenticationManager.authenticate(token);
     }
 
@@ -67,7 +67,7 @@ public class UserAuthenticationFilter extends UsernamePasswordAuthenticationFilt
             .sign(algorithm);
 
         Map<String, String> tokens = new HashMap<>();
-        tokens.put("username", user.getUsername());
+        tokens.put("email", user.getUsername());
         tokens.put("accessToken", accessToken);
         tokens.put("refreshToken", refreshToken);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
