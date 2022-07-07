@@ -42,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
 
     // ======== Create/save product ========
     @Override
-    public Product saveProduct(String username, UploadProductDto uploadProductDto) throws ResponseStatusException {
+    public Product saveProduct(String email, UploadProductDto uploadProductDto) throws ResponseStatusException {
         // ======== Check Images Count ========
         if (uploadProductDto.getImages().length > 4 || uploadProductDto.getImages().length == 1) {
             if (uploadProductDto.getImages().length > 4) {
@@ -61,7 +61,7 @@ public class ProductServiceImpl implements ProductService {
 
         try {
             checkProductDto(uploadProductDto);
-            Long userId = userRepository.findByUsername(username).getId();
+            Long userId = userRepository.findByEmail(email).getId();
 
             // ======== Assign DTO to Model ========
             Product product = new Product();
@@ -143,7 +143,7 @@ public class ProductServiceImpl implements ProductService {
 
     // ======== Update product ========
     @Override
-    public Product updateProduct(String username, Long productId, UploadProductDto uploadProductDto) {
+    public Product updateProduct(String email, Long productId, UploadProductDto uploadProductDto) {
         // ======== Check Repository ========
         if (!productRepository.findById(productId).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product not found");
@@ -162,7 +162,7 @@ public class ProductServiceImpl implements ProductService {
 
         try {
             checkProductDto(uploadProductDto);
-            Long userId = userRepository.findByUsername(username).getId();
+            Long userId = userRepository.findByEmail(email).getId();
 
             // ======== Assign DTO to Model ========
             Product product = new Product();
@@ -217,12 +217,12 @@ public class ProductServiceImpl implements ProductService {
 
     // ======== Delete product ========
     @Override
-    public boolean deleteProduct(String username, Long productId) {
+    public boolean deleteProduct(String email, Long productId) {
         Optional<Product> res = productRepository.findById(productId);
         Product product = null;
         if (res.isPresent()) {
             product = res.get();
-            if (userRepository.findByUsername(username).getId().equals(product.getUserId())) {
+            if (userRepository.findByEmail(email).getId().equals(product.getUserId())) {
                 List<ProductImage> oldImages = productRepository.findAllProductImages(productId);
                 productImageService.deleteProductImages(oldImages);
                 productRepository.deleteById(productId);

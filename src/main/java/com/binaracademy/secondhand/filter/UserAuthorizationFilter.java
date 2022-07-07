@@ -42,9 +42,9 @@ public class UserAuthorizationFilter extends OncePerRequestFilter {
                     JWTVerifier verifier = JWT.require(algorithm).build();
                     DecodedJWT decodedJWT = verifier.verify(token);
 
-                    String username = decodedJWT.getSubject();
+                    String email = decodedJWT.getSubject();
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                        username,
+                        email,
                         null,
                         new ArrayList<SimpleGrantedAuthority>()
                     );
