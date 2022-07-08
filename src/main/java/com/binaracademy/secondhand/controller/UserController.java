@@ -108,7 +108,6 @@ public class UserController {
                     .sign(algorithm);
 
                 Map<String, String> tokens = new HashMap<>();
-                tokens.put("username", user.getEmail());
                 tokens.put("accessToken", accessToken);
                 tokens.put("refreshToken", refreshToken);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
