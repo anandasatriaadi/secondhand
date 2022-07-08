@@ -1,6 +1,6 @@
 package com.binaracademy.secondhand.service;
 
-import com.binaracademy.secondhand.dto.CategoryDto;
+import com.binaracademy.secondhand.dto.CategoryUploadDto;
 import com.binaracademy.secondhand.model.Category;
 import com.binaracademy.secondhand.repository.CategoryRepository;
 import java.util.List;
@@ -19,7 +19,7 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public Category saveCategory(CategoryDto categoryDto) {
+    public Category saveCategory(CategoryUploadDto categoryDto) {
         log.info("Saving Category");
         Category category = new Category();
         category.setCategoryName(categoryDto.getCategoryName());

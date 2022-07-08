@@ -4,9 +4,9 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.binaracademy.secondhand.dto.ResponseUserDto;
-import com.binaracademy.secondhand.dto.RestDto;
-import com.binaracademy.secondhand.dto.UploadUserDto;
+import com.binaracademy.secondhand.dto.RestResponseDto;
+import com.binaracademy.secondhand.dto.UserResponseDto;
+import com.binaracademy.secondhand.dto.UserUploadDto;
 import com.binaracademy.secondhand.model.User;
 import com.binaracademy.secondhand.repository.UserRepository;
 import com.binaracademy.secondhand.service.UserService;
@@ -47,9 +47,9 @@ public class UserController {
     //   Get all users while not on production
     // ========================================================================
     @GetMapping("/users")
-    public ResponseEntity<RestDto> getAllUsers() {
+    public ResponseEntity<RestResponseDto> getAllUsers() {
         if (!System.getenv("SPRING_PROFILES_ACTIVE").equals("production")) {
-            return ResponseEntity.ok(new RestDto(200, "ok", userService.getAllUsers()));
+            return ResponseEntity.ok(new RestResponseDto(200, "ok", userService.getAllUsers()));
         }
         return null;
     }
@@ -58,8 +58,8 @@ public class UserController {
     //   Get current logged in user
     // ========================================================================
     @GetMapping("/user-info")
-    public ResponseEntity<RestDto> getCurrentuser(Authentication authentication) {
-        return ResponseEntity.ok(new RestDto(200, "ok", userService.getUser(authentication.getPrincipal().toString())));
+    public ResponseEntity<RestResponseDto> getCurrentuser(Authentication authentication) {
+        return ResponseEntity.ok(new RestResponseDto(200, "ok", userService.getUser(authentication.getPrincipal().toString())));
     }
 
     // ========================================================================
@@ -103,12 +103,12 @@ public class UserController {
                 tokens.put("accessToken", accessToken);
                 tokens.put("refreshToken", refreshToken);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-                new ObjectMapper().writeValue(response.getOutputStream(), new RestDto(200, "ok", tokens));
+                new ObjectMapper().writeValue(response.getOutputStream(), new RestResponseDto(200, "ok", tokens));
             } catch (Exception e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                 new ObjectMapper()
-                    .writeValue(response.getOutputStream(), new RestDto(HttpServletResponse.SC_UNAUTHORIZED, "Token expired", ""));
+                    .writeValue(response.getOutputStream(), new RestResponseDto(HttpServletResponse.SC_UNAUTHORIZED, "Token expired", ""));
                 log.error("Error processing refresh token");
             }
         }
@@ -118,34 +118,36 @@ public class UserController {
     //   Register user
     // ========================================================================
     @PostMapping("/register")
-    public ResponseEntity<RestDto> saveUser(@RequestBody UploadUserDto userDto) {
+    public ResponseEntity<RestResponseDto> saveUser(@RequestBody UserUploadDto userDto) {
         // ======== Return Conflict on Username Found ========
         if (userRepository.findByEmail(userDto.getEmail()) != null) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(new RestDto(HttpStatus.CONFLICT.value(), "Email exists", ""));
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new RestResponseDto(HttpStatus.CONFLICT.value(), "Email exists", ""));
         }
 
         // ======== Return Bad Request on Incomplete Request ========
-        ResponseUserDto result = userService.saveUser(userDto);
+        UserResponseDto result = userService.saveUser(userDto);
         if (result == null) {
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(new RestDto(HttpStatus.BAD_REQUEST.value(), "Incomplete user data", ""));
+                .body(new RestResponseDto(HttpStatus.BAD_REQUEST.value(), "Incomplete user data", ""));
         }
 
         // ======== Return Created on User Registration Success ========
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/register").toUriString());
-        return ResponseEntity.created(uri).body(new RestDto(HttpStatus.CREATED.value(), "created", result));
+        return ResponseEntity.created(uri).body(new RestResponseDto(HttpStatus.CREATED.value(), "created", result));
     }
 
     // ========================================================================
     //   Check user data completeness for seller
     // ========================================================================
     @GetMapping("/user/check")
-    public ResponseEntity<RestDto> checkUser(Authentication authentication) {
+    public ResponseEntity<RestResponseDto> checkUser(Authentication authentication) {
         if (userService.checkUser(authentication.getPrincipal().toString())) {
-            return ResponseEntity.status(HttpStatus.OK).body(new RestDto(HttpStatus.OK.value(), "User data complete", ""));
+            return ResponseEntity.status(HttpStatus.OK).body(new RestResponseDto(HttpStatus.OK.value(), "User data complete", ""));
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new RestDto(HttpStatus.NOT_FOUND.value(), "User data incomplete", ""));
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new RestResponseDto(HttpStatus.NOT_FOUND.value(), "User data incomplete", ""));
         }
     }
 }

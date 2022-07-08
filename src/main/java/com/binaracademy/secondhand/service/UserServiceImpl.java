@@ -1,7 +1,7 @@
 package com.binaracademy.secondhand.service;
 
-import com.binaracademy.secondhand.dto.ResponseUserDto;
-import com.binaracademy.secondhand.dto.UploadUserDto;
+import com.binaracademy.secondhand.dto.UserResponseDto;
+import com.binaracademy.secondhand.dto.UserUploadDto;
 import com.binaracademy.secondhand.model.User;
 import com.binaracademy.secondhand.repository.UserRepository;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private ModelMapper modelMapper;
 
     @Override
-    public ResponseUserDto saveUser(UploadUserDto userDto) {
+    public UserResponseDto saveUser(UserUploadDto userDto) {
         log.info("Saving User");
         if (userDto.getPassword() != null && userDto.getEmail() != null && userDto.getFullName() != null) {
             User user = new User();
@@ -43,24 +43,24 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             user.setFullName(userDto.getFullName());
 
             User result = userRepository.save(user);
-            return modelMapper.map(result, ResponseUserDto.class);
+            return modelMapper.map(result, UserResponseDto.class);
         } else {
             return null;
         }
     }
 
     @Override
-    public ResponseUserDto getUser(String email) {
+    public UserResponseDto getUser(String email) {
         log.info("Getting User");
         User result = userRepository.findByEmail(email);
-        return modelMapper.map(result, ResponseUserDto.class);
+        return modelMapper.map(result, UserResponseDto.class);
     }
 
     @Override
-    public List<ResponseUserDto> getAllUsers() {
+    public List<UserResponseDto> getAllUsers() {
         log.info("Getting All Users");
         List<User> result = userRepository.findAll();
-        return modelMapper.map(result, new TypeToken<List<ResponseUserDto>>() {}.getType());
+        return modelMapper.map(result, new TypeToken<List<UserResponseDto>>() {}.getType());
     }
 
     @Override

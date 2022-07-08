@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class RestDto {
+public class RestResponseDto {
 
     private Integer status;
     private String message;
