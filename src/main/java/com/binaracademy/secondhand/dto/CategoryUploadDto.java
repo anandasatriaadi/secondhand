@@ -3,7 +3,7 @@ package com.binaracademy.secondhand.dto;
 import lombok.Data;
 
 @Data
-public class CategoryDto {
+public class CategoryUploadDto {
 
     private String categoryName;
 }

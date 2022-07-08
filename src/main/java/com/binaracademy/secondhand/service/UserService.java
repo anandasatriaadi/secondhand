@@ -1,12 +1,12 @@
 package com.binaracademy.secondhand.service;
 
-import com.binaracademy.secondhand.dto.ResponseUserDto;
-import com.binaracademy.secondhand.dto.UploadUserDto;
+import com.binaracademy.secondhand.dto.UserResponseDto;
+import com.binaracademy.secondhand.dto.UserUploadDto;
 import java.util.List;
 
 public interface UserService {
-    ResponseUserDto saveUser(UploadUserDto userDto);
-    ResponseUserDto getUser(String username);
+    UserResponseDto saveUser(UserUploadDto userDto);
+    UserResponseDto getUser(String username);
     boolean checkUser(String username);
-    List<ResponseUserDto> getAllUsers();
+    List<UserResponseDto> getAllUsers();
 }

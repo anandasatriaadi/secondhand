@@ -7,7 +7,7 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class UploadProductDto {
+public class ProductUploadDto {
 
     private String name;
     private String description;

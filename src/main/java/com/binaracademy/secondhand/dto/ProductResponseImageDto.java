@@ -8,7 +8,7 @@ import javax.persistence.Enumerated;
 import lombok.Data;
 
 @Data
-public class ProductWithImageDto {
+public class ProductResponseImageDto {
 
     private Long id;
     private String name;

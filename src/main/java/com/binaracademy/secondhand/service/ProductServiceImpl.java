@@ -1,6 +1,6 @@
 package com.binaracademy.secondhand.service;
 
-import com.binaracademy.secondhand.dto.UploadProductDto;
+import com.binaracademy.secondhand.dto.ProductUploadDto;
 import com.binaracademy.secondhand.model.Category;
 import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.model.ProductImage;
@@ -42,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
 
     // ======== Create/save product ========
     @Override
-    public Product saveProduct(String email, UploadProductDto uploadProductDto) throws ResponseStatusException {
+    public Product saveProduct(String email, ProductUploadDto uploadProductDto) throws ResponseStatusException {
         // ======== Check Images Count ========
         if (uploadProductDto.getImages().length > 4 || uploadProductDto.getImages().length == 1) {
             if (uploadProductDto.getImages().length > 4) {
@@ -143,7 +143,7 @@ public class ProductServiceImpl implements ProductService {
 
     // ======== Update product ========
     @Override
-    public Product updateProduct(String email, Long productId, UploadProductDto uploadProductDto) {
+    public Product updateProduct(String email, Long productId, ProductUploadDto uploadProductDto) {
         // ======== Check Repository ========
         if (!productRepository.findById(productId).isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product not found");
@@ -241,7 +241,7 @@ public class ProductServiceImpl implements ProductService {
     // ========================================================================
 
     // ======== Check product dto ========
-    private void checkProductDto(UploadProductDto uploadProductDto) throws IllegalArgumentException {
+    private void checkProductDto(ProductUploadDto uploadProductDto) throws IllegalArgumentException {
         if (
             uploadProductDto.getName() == null ||
             uploadProductDto.getDescription() == null ||

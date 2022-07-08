@@ -4,7 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.binaracademy.secondhand.dto.RestDto;
+import com.binaracademy.secondhand.dto.RestResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,12 +56,18 @@ public class UserAuthorizationFilter extends OncePerRequestFilter {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     new ObjectMapper()
-                        .writeValue(response.getOutputStream(), new RestDto(HttpServletResponse.SC_BAD_REQUEST, "Max image size 1MB", ""));
+                        .writeValue(
+                            response.getOutputStream(),
+                            new RestResponseDto(HttpServletResponse.SC_BAD_REQUEST, "Max image size 1MB", "")
+                        );
                 } catch (Exception e) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     new ObjectMapper()
-                        .writeValue(response.getOutputStream(), new RestDto(HttpServletResponse.SC_UNAUTHORIZED, "Token expired", ""));
+                        .writeValue(
+                            response.getOutputStream(),
+                            new RestResponseDto(HttpServletResponse.SC_UNAUTHORIZED, "Token expired", "")
+                        );
                     e.printStackTrace();
                     log.error("Error processing JWT");
                 }
