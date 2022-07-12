@@ -43,6 +43,10 @@ public class ProductServiceImpl implements ProductService {
     // ======== Create/save product ========
     @Override
     public Product saveProduct(String email, ProductUploadDto uploadProductDto) throws ResponseStatusException {
+        if (uploadProductDto.getImages() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Images is null");
+        }
+
         // ======== Check Images Count ========
         if (uploadProductDto.getImages().length > 4 || uploadProductDto.getImages().length == 1) {
             if (uploadProductDto.getImages().length > 4) {
