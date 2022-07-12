@@ -3,11 +3,15 @@ package com.binaracademy.secondhand.controller;
 import com.binaracademy.secondhand.dto.ProductResponseImageDto;
 import com.binaracademy.secondhand.dto.ProductUploadDto;
 import com.binaracademy.secondhand.dto.RestResponseDto;
+import com.binaracademy.secondhand.model.Notification;
 import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.model.ProductImage;
+import com.binaracademy.secondhand.service.NotificationService;
 import com.binaracademy.secondhand.service.ProductImageService;
 import com.binaracademy.secondhand.service.ProductService;
+import com.binaracademy.secondhand.util.enums.NotificationType;
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +45,9 @@ public class ProductController {
 
     @Autowired
     private final ProductImageService productImageService;
+
+    @Autowired
+    private final NotificationService notificationService;
 
     // ========================================================================
     //   Get products with search and pagination
@@ -141,7 +148,15 @@ public class ProductController {
     @PostMapping("/product/save")
     public ResponseEntity<RestResponseDto> saveProduct(Authentication authentication, @ModelAttribute ProductUploadDto uploadProductDto) {
         try {
-            productService.saveProduct(authentication.getPrincipal().toString(), uploadProductDto);
+            Product saveResult = productService.saveProduct(authentication.getPrincipal().toString(), uploadProductDto);
+
+            Notification publishedNotif = new Notification();
+            publishedNotif.setUserId(saveResult.getUserId());
+            publishedNotif.setType(NotificationType.PUBLISH);
+            publishedNotif.setCreatedAt(LocalDateTime.now());
+
+            notificationService.addNotification(publishedNotif);
+
             log.info(MSG_SUCCESS + authentication.getPrincipal().toString() + " saving product");
         } catch (ResponseStatusException e) {
             log.info(MSG_FAILED + authentication.getPrincipal().toString() + " saving product");
