@@ -1,7 +1,9 @@
 package com.binaracademy.secondhand.util.enums;
 
 public enum OfferStatus {
-    WAITING,
+    PENDING,
     ACCEPTED,
     DECLINED,
+    COMPLETED,
+    CANCELLED,
 }
