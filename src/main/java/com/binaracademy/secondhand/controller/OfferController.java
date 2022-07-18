@@ -60,47 +60,47 @@ public class OfferController {
     }
 
     @GetMapping("/offers")
-    public RestResponseDto getOffer(Authentication authentication) {
-        return new RestResponseDto(200, OK_MSG, offerService.getOffers(authentication.getPrincipal().toString()));
+    public ResponseEntity<RestResponseDto> getOffer(Authentication authentication) {
+        return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, offerService.getOffers(authentication.getPrincipal().toString())));
     }
 
     @PostMapping("/offer/accept")
-    public RestResponseDto acceptOffer(@RequestBody Map<?, ?> requestMap) {
+    public ResponseEntity<RestResponseDto> acceptOffer(@RequestBody Map<?, ?> requestMap) {
         if (offerService.acceptOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
-            return new RestResponseDto(200, OK_MSG, null);
+            return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
         } else {
             log.error("Error while accepting offer {}", ((Integer) requestMap.get("id")).longValue());
-            return new RestResponseDto(400, FAILED_MSG, null);
+            return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
         }
     }
 
     @PostMapping("/offer/decline")
-    public RestResponseDto declineOffer(@RequestBody Map<?, ?> requestMap) {
+    public ResponseEntity<RestResponseDto> declineOffer(@RequestBody Map<?, ?> requestMap) {
         if (offerService.declineOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
-            return new RestResponseDto(200, OK_MSG, null);
+            return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
         } else {
             log.error("Error while declining offer {}", ((Integer) requestMap.get("id")).longValue());
-            return new RestResponseDto(400, FAILED_MSG, null);
+            return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
         }
     }
 
     @PostMapping("/offer/complete")
-    public RestResponseDto completeOffer(@RequestBody Map<?, ?> requestMap) {
+    public ResponseEntity<RestResponseDto> completeOffer(@RequestBody Map<?, ?> requestMap) {
         if (offerService.completeOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
-            return new RestResponseDto(200, OK_MSG, null);
+            return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
         } else {
             log.error("Error while completing offer {}", ((Integer) requestMap.get("id")).longValue());
-            return new RestResponseDto(400, FAILED_MSG, null);
+            return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
         }
     }
 
     @PostMapping("/offer/cancel")
-    public RestResponseDto cancelOffer(@RequestBody Map<?, ?> requestMap) {
+    public ResponseEntity<RestResponseDto> cancelOffer(@RequestBody Map<?, ?> requestMap) {
         if (offerService.cancelOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
-            return new RestResponseDto(200, OK_MSG, null);
+            return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
         } else {
             log.error("Error while cancelling offer {}", ((Integer) requestMap.get("id")).longValue());
-            return new RestResponseDto(400, FAILED_MSG, null);
+            return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
         }
     }
 }
