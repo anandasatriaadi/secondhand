@@ -8,15 +8,18 @@ import com.binaracademy.secondhand.service.NotificationService;
 import com.binaracademy.secondhand.service.OfferService;
 import com.binaracademy.secondhand.util.enums.NotificationType;
 import java.time.LocalDateTime;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,7 +37,7 @@ public class OfferController {
     private final OfferService offerService;
 
     @PostMapping("/offer/save")
-    public RestResponseDto saveOffer(Authentication authentication, @RequestBody ProductOfferUploadDto offer) {
+    public ResponseEntity<RestResponseDto> saveOffer(Authentication authentication, @RequestBody ProductOfferUploadDto offer) {
         try {
             ProductOffer result = offerService.saveOffer(authentication.getPrincipal().toString(), offer);
 
@@ -46,10 +49,13 @@ public class OfferController {
 
             notificationService.addNotification(offerNotif);
 
-            return new RestResponseDto(200, OK_MSG, result);
+            return ResponseEntity.ok().body(new RestResponseDto(200, OK_MSG, result));
+        } catch (ResponseStatusException e) {
+            log.error("Error while saving offer");
+            return ResponseEntity.status(e.getStatus()).body(new RestResponseDto(e.getRawStatusCode(), e.getReason(), ""));
         } catch (Exception e) {
-            log.error("Error while saving offer", e);
-            return new RestResponseDto(400, FAILED_MSG, null);
+            log.error("Error while saving offer");
+            return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
         }
     }
 
@@ -58,42 +64,42 @@ public class OfferController {
         return new RestResponseDto(200, OK_MSG, offerService.getOffers(authentication.getPrincipal().toString()));
     }
 
-    @PostMapping("/offer/accept/{id}")
-    public RestResponseDto acceptOffer(@RequestBody Long id) {
-        if (offerService.acceptOffer(id).booleanValue()) {
+    @PostMapping("/offer/accept")
+    public RestResponseDto acceptOffer(@RequestBody Map<?, ?> requestMap) {
+        if (offerService.acceptOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
             return new RestResponseDto(200, OK_MSG, null);
         } else {
-            log.error("Error while accepting offer {}", id);
+            log.error("Error while accepting offer {}", ((Integer) requestMap.get("id")).longValue());
             return new RestResponseDto(400, FAILED_MSG, null);
         }
     }
 
-    @PostMapping("/offer/decline/{id}")
-    public RestResponseDto declineOffer(@RequestBody Long id) {
-        if (offerService.declineOffer(id).booleanValue()) {
+    @PostMapping("/offer/decline")
+    public RestResponseDto declineOffer(@RequestBody Map<?, ?> requestMap) {
+        if (offerService.declineOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
             return new RestResponseDto(200, OK_MSG, null);
         } else {
-            log.error("Error while declining offer {}", id);
+            log.error("Error while declining offer {}", ((Integer) requestMap.get("id")).longValue());
             return new RestResponseDto(400, FAILED_MSG, null);
         }
     }
 
-    @PostMapping("/offer/complete/{id}")
-    public RestResponseDto completeOffer(@RequestBody Long id) {
-        if (offerService.completeOffer(id).booleanValue()) {
+    @PostMapping("/offer/complete")
+    public RestResponseDto completeOffer(@RequestBody Map<?, ?> requestMap) {
+        if (offerService.completeOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
             return new RestResponseDto(200, OK_MSG, null);
         } else {
-            log.error("Error while completing offer {}", id);
+            log.error("Error while completing offer {}", ((Integer) requestMap.get("id")).longValue());
             return new RestResponseDto(400, FAILED_MSG, null);
         }
     }
 
-    @PostMapping("/offer/cancel/{id}")
-    public RestResponseDto cancelOffer(@RequestBody Long id) {
-        if (offerService.cancelOffer(id).booleanValue()) {
+    @PostMapping("/offer/cancel")
+    public RestResponseDto cancelOffer(@RequestBody Map<?, ?> requestMap) {
+        if (offerService.cancelOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
             return new RestResponseDto(200, OK_MSG, null);
         } else {
-            log.error("Error while cancelling offer {}", id);
+            log.error("Error while cancelling offer {}", ((Integer) requestMap.get("id")).longValue());
             return new RestResponseDto(400, FAILED_MSG, null);
         }
     }

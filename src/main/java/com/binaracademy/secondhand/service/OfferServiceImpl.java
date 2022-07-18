@@ -1,9 +1,13 @@
 package com.binaracademy.secondhand.service;
 
 import com.binaracademy.secondhand.dto.ProductOfferUploadDto;
+import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.model.ProductOffer;
+import com.binaracademy.secondhand.model.UserTransaction;
 import com.binaracademy.secondhand.repository.ProductOfferRepository;
+import com.binaracademy.secondhand.repository.ProductRepository;
 import com.binaracademy.secondhand.repository.UserRepository;
+import com.binaracademy.secondhand.repository.UserTransactionRepository;
 import com.binaracademy.secondhand.util.enums.OfferStatus;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,7 +16,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -23,20 +29,30 @@ public class OfferServiceImpl implements OfferService {
     private final UserRepository userRepository;
 
     @Autowired
+    private final ProductRepository productRepository;
+
+    @Autowired
     private final ProductOfferRepository productOfferRepository;
+
+    @Autowired
+    private final UserTransactionRepository userTransactionRepository;
 
     @Autowired
     private final ModelMapper modelMapper;
 
     @Override
     public ProductOffer saveOffer(String email, ProductOfferUploadDto offer) {
-        Long userId = userRepository.findByEmail(email).getId();
-        ProductOffer productOffer = modelMapper.map(offer, ProductOffer.class);
-        productOffer.setUserId(userId);
-        productOffer.setOfferStatus(OfferStatus.PENDING);
-        productOffer.setCreatedAt(LocalDateTime.now());
+        if (productRepository.findById(offer.getProductId()).isPresent()) {
+            Long userId = userRepository.findByEmail(email).getId();
+            ProductOffer productOffer = modelMapper.map(offer, ProductOffer.class);
+            productOffer.setUserId(userId);
+            productOffer.setOfferStatus(OfferStatus.PENDING);
+            productOffer.setCreatedAt(LocalDateTime.now());
 
-        return productOfferRepository.save(productOffer);
+            return productOfferRepository.save(productOffer);
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found");
+        }
     }
 
     @Override
@@ -56,7 +72,25 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public Boolean completeOffer(Long offerId) {
-        return setOfferStatus(offerId, OfferStatus.COMPLETED);
+        Optional<ProductOffer> queryResult = productOfferRepository.findById(offerId);
+
+        if (queryResult.isPresent()) {
+            Optional<Product> queryResult2 = productRepository.findById(queryResult.get().getProductId());
+
+            if (queryResult2.isPresent()) {
+                UserTransaction userTransaction = new UserTransaction();
+                userTransaction.setProductId(queryResult.get().getProductId());
+                userTransaction.setBuyerId(queryResult.get().getUserId());
+                userTransaction.setSellerId(queryResult2.get().getUserId());
+                userTransaction.setPrice(queryResult.get().getOfferPrice());
+                userTransaction.setCreatedAt(LocalDateTime.now());
+
+                userTransactionRepository.save(userTransaction);
+
+                return setOfferStatus(offerId, OfferStatus.COMPLETED);
+            }
+        }
+        return false;
     }
 
     @Override
