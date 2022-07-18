@@ -1,6 +1,5 @@
 package com.binaracademy.secondhand.service;
 
-import com.binaracademy.secondhand.dto.UserResponseDto;
 import com.binaracademy.secondhand.dto.UserUploadDto;
 import com.binaracademy.secondhand.model.User;
 import com.binaracademy.secondhand.repository.UserRepository;
@@ -9,8 +8,6 @@ import java.util.Collection;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,11 +27,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
     @Override
-    public UserResponseDto saveUser(UserUploadDto userDto) {
+    public User saveUser(UserUploadDto userDto) {
         log.info("Saving User");
         if (userDto.getPassword() != null && userDto.getEmail() != null && userDto.getFullName() != null) {
             User user = new User();
@@ -42,25 +36,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
             user.setFullName(userDto.getFullName());
 
-            User result = userRepository.save(user);
-            return modelMapper.map(result, UserResponseDto.class);
+            return userRepository.save(user);
         } else {
             return null;
         }
     }
 
     @Override
-    public UserResponseDto getUser(String email) {
+    public User getUser(String email) {
         log.info("Getting User");
-        User result = userRepository.findByEmail(email);
-        return modelMapper.map(result, UserResponseDto.class);
+        return userRepository.findByEmail(email);
     }
 
     @Override
-    public List<UserResponseDto> getAllUsers() {
+    public List<User> getAllUsers() {
         log.info("Getting All Users");
-        List<User> result = userRepository.findAll();
-        return modelMapper.map(result, new TypeToken<List<UserResponseDto>>() {}.getType());
+        return userRepository.findAll();
     }
 
     @Override

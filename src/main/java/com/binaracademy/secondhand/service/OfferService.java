@@ -6,7 +6,9 @@ import java.util.List;
 
 public interface OfferService {
     ProductOffer saveOffer(String email, ProductOfferUploadDto offer);
-    List<ProductOffer> getOffers(String email);
+    List<ProductOffer> getBuyerOffers(String email);
+    List<ProductOffer> getSellerOffers(String email);
+    ProductOffer getOffer(Long offerId);
     Boolean acceptOffer(Long offerId);
     Boolean declineOffer(Long offerId);
     Boolean completeOffer(Long offerId);

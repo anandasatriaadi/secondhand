@@ -3,18 +3,21 @@ package com.binaracademy.secondhand.controller;
 import com.binaracademy.secondhand.dto.ProductOfferUploadDto;
 import com.binaracademy.secondhand.dto.RestResponseDto;
 import com.binaracademy.secondhand.model.Notification;
+import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.model.ProductOffer;
 import com.binaracademy.secondhand.service.NotificationService;
 import com.binaracademy.secondhand.service.OfferService;
+import com.binaracademy.secondhand.service.ProductService;
+import com.binaracademy.secondhand.service.UserService;
 import com.binaracademy.secondhand.util.enums.NotificationType;
 import java.time.LocalDateTime;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,9 +32,16 @@ public class OfferController {
 
     private final String OK_MSG = "ok";
     private final String FAILED_MSG = "failed";
+    private final String FORBIDDEN_MSG = "This product does not belong to this user";
 
     @Autowired
     private final NotificationService notificationService;
+
+    @Autowired
+    private final UserService userService;
+
+    @Autowired
+    private final ProductService productService;
 
     @Autowired
     private final OfferService offerService;
@@ -42,7 +52,7 @@ public class OfferController {
             ProductOffer result = offerService.saveOffer(authentication.getPrincipal().toString(), offer);
 
             Notification offerNotif = new Notification();
-            offerNotif.setUserId(result.getUserId());
+            offerNotif.setUserId(result.getSellerId());
             offerNotif.setOfferId(result.getId());
             offerNotif.setType(NotificationType.OFFER);
             offerNotif.setCreatedAt(LocalDateTime.now());
@@ -59,48 +69,74 @@ public class OfferController {
         }
     }
 
-    @GetMapping("/offers")
-    public ResponseEntity<RestResponseDto> getOffer(Authentication authentication) {
-        return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, offerService.getOffers(authentication.getPrincipal().toString())));
+    @GetMapping("/offers/buyer")
+    public ResponseEntity<RestResponseDto> getBuyerOffers(Authentication authentication) {
+        return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, offerService.getBuyerOffers(authentication.getPrincipal().toString())));
     }
 
-    @PostMapping("/offer/accept")
-    public ResponseEntity<RestResponseDto> acceptOffer(@RequestBody Map<?, ?> requestMap) {
-        if (offerService.acceptOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
-            return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
-        } else {
-            log.error("Error while accepting offer {}", ((Integer) requestMap.get("id")).longValue());
-            return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
-        }
+    @GetMapping("/offers/seller")
+    public ResponseEntity<RestResponseDto> getSellerOffers(Authentication authentication) {
+        return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, offerService.getSellerOffers(authentication.getPrincipal().toString())));
     }
 
-    @PostMapping("/offer/decline")
-    public ResponseEntity<RestResponseDto> declineOffer(@RequestBody Map<?, ?> requestMap) {
-        if (offerService.declineOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
-            return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
-        } else {
-            log.error("Error while declining offer {}", ((Integer) requestMap.get("id")).longValue());
-            return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
+    @GetMapping("/offer/{offerId}/accept")
+    public ResponseEntity<RestResponseDto> acceptOffer(Authentication authentication, @PathVariable Long offerId) {
+        if (checkIfOfferValidForUser(authentication, offerId)) {
+            if (offerService.acceptOffer(offerId).booleanValue()) {
+                return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
+            } else {
+                log.error("Error while accepting offer {}", offerId);
+                return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
+            }
         }
+        return ResponseEntity.status(403).body(new RestResponseDto(403, FORBIDDEN_MSG, null));
     }
 
-    @PostMapping("/offer/complete")
-    public ResponseEntity<RestResponseDto> completeOffer(@RequestBody Map<?, ?> requestMap) {
-        if (offerService.completeOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
-            return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
-        } else {
-            log.error("Error while completing offer {}", ((Integer) requestMap.get("id")).longValue());
-            return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
+    @GetMapping("/offer/{offerId}/decline")
+    public ResponseEntity<RestResponseDto> declineOffer(Authentication authentication, @PathVariable Long offerId) {
+        if (checkIfOfferValidForUser(authentication, offerId)) {
+            if (offerService.declineOffer(offerId).booleanValue()) {
+                return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
+            } else {
+                log.error("Error while declining offer {}", offerId);
+                return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
+            }
         }
+        return ResponseEntity.status(403).body(new RestResponseDto(403, FORBIDDEN_MSG, null));
     }
 
-    @PostMapping("/offer/cancel")
-    public ResponseEntity<RestResponseDto> cancelOffer(@RequestBody Map<?, ?> requestMap) {
-        if (offerService.cancelOffer(((Integer) requestMap.get("id")).longValue()).booleanValue()) {
-            return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
-        } else {
-            log.error("Error while cancelling offer {}", ((Integer) requestMap.get("id")).longValue());
-            return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
+    @GetMapping("/offer/{offerId}/complete")
+    public ResponseEntity<RestResponseDto> completeOffer(Authentication authentication, @PathVariable Long offerId) {
+        if (checkIfOfferValidForUser(authentication, offerId)) {
+            if (offerService.completeOffer(offerId).booleanValue()) {
+                return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
+            } else {
+                log.error("Error while completing offer {}", offerId);
+                return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
+            }
         }
+        return ResponseEntity.status(403).body(new RestResponseDto(403, FORBIDDEN_MSG, null));
+    }
+
+    @GetMapping("/offer/{offerId}/cancel")
+    public ResponseEntity<RestResponseDto> cancelOffer(Authentication authentication, @PathVariable Long offerId) {
+        if (checkIfOfferValidForUser(authentication, offerId)) {
+            if (offerService.cancelOffer(offerId).booleanValue()) {
+                return ResponseEntity.ok(new RestResponseDto(200, OK_MSG, null));
+            } else {
+                log.error("Error while cancelling offer {}", offerId);
+                return ResponseEntity.badRequest().body(new RestResponseDto(400, FAILED_MSG, null));
+            }
+        }
+        return ResponseEntity.status(403).body(new RestResponseDto(403, FORBIDDEN_MSG, null));
+    }
+
+    // ========================================================================
+    //   UTILITY FUNCTIONS
+    // ========================================================================
+    private boolean checkIfOfferValidForUser(Authentication authentication, Long offerId) {
+        Product result = productService.getProduct(offerService.getOffer(offerId).getProductId());
+
+        return result.getUserId().equals(userService.getUser(authentication.getPrincipal().toString()).getId());
     }
 }

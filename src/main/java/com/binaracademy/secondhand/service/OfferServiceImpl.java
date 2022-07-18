@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -35,16 +34,17 @@ public class OfferServiceImpl implements OfferService {
     @Autowired
     private final UserTransactionRepository userTransactionRepository;
 
-    @Autowired
-    private final ModelMapper modelMapper;
-
     @Override
     public ProductOffer saveOffer(String email, ProductOfferUploadDto offer) {
-        if (productRepository.findById(offer.getProductId()).isPresent()) {
+        Optional<Product> productResult = productRepository.findById(offer.getProductId());
+        if (productResult.isPresent()) {
             Long userId = userRepository.findByEmail(email).getId();
-            ProductOffer productOffer = modelMapper.map(offer, ProductOffer.class);
-            productOffer.setUserId(userId);
+            ProductOffer productOffer = new ProductOffer();
+            productOffer.setProductId(offer.getProductId());
+            productOffer.setBuyerId(userId);
+            productOffer.setSellerId(productResult.get().getUserId());
             productOffer.setOfferStatus(OfferStatus.PENDING);
+            productOffer.setOfferPrice(offer.getOfferPrice());
             productOffer.setCreatedAt(LocalDateTime.now());
 
             return productOfferRepository.save(productOffer);
@@ -54,8 +54,19 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public List<ProductOffer> getOffers(String email) {
-        return productOfferRepository.findByUserId(userRepository.findByEmail(email).getId());
+    public List<ProductOffer> getBuyerOffers(String email) {
+        return productOfferRepository.findByBuyerId(userRepository.findByEmail(email).getId());
+    }
+
+    @Override
+    public List<ProductOffer> getSellerOffers(String email) {
+        return productOfferRepository.findBySellerId(userRepository.findByEmail(email).getId());
+    }
+
+    @Override
+    public ProductOffer getOffer(Long offerId) {
+        Optional<ProductOffer> productOffer = productOfferRepository.findById(offerId);
+        return productOffer.isPresent() ? productOffer.get() : null;
     }
 
     @Override
@@ -73,20 +84,16 @@ public class OfferServiceImpl implements OfferService {
         Optional<ProductOffer> queryResult = productOfferRepository.findById(offerId);
 
         if (queryResult.isPresent()) {
-            Optional<Product> queryResult2 = productRepository.findById(queryResult.get().getProductId());
+            UserTransaction userTransaction = new UserTransaction();
+            userTransaction.setProductId(queryResult.get().getProductId());
+            userTransaction.setBuyerId(queryResult.get().getBuyerId());
+            userTransaction.setSellerId(queryResult.get().getSellerId());
+            userTransaction.setPrice(queryResult.get().getOfferPrice());
+            userTransaction.setCreatedAt(LocalDateTime.now());
 
-            if (queryResult2.isPresent()) {
-                UserTransaction userTransaction = new UserTransaction();
-                userTransaction.setProductId(queryResult.get().getProductId());
-                userTransaction.setBuyerId(queryResult.get().getUserId());
-                userTransaction.setSellerId(queryResult2.get().getUserId());
-                userTransaction.setPrice(queryResult.get().getOfferPrice());
-                userTransaction.setCreatedAt(LocalDateTime.now());
+            userTransactionRepository.save(userTransaction);
 
-                userTransactionRepository.save(userTransaction);
-
-                return setOfferStatus(offerId, OfferStatus.COMPLETED);
-            }
+            return setOfferStatus(offerId, OfferStatus.COMPLETED);
         }
         return false;
     }
