@@ -15,12 +15,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +51,9 @@ public class UserController {
     @GetMapping("/users")
     public ResponseEntity<RestResponseDto> getAllUsers() {
         if (!System.getenv("SPRING_PROFILES_ACTIVE").equals("production")) {
-            return ResponseEntity.ok(new RestResponseDto(200, "ok", userService.getAllUsers()));
+            List<User> userResult = userService.getAllUsers();
+            List<UserResponseDto> returnResult = modelMapper.map(userResult, new TypeToken<List<UserResponseDto>>() {}.getType());
+            return ResponseEntity.ok(new RestResponseDto(200, "ok", returnResult));
         }
         return null;
     }
@@ -59,7 +63,9 @@ public class UserController {
     // ========================================================================
     @GetMapping("/user-info")
     public ResponseEntity<RestResponseDto> getCurrentuser(Authentication authentication) {
-        return ResponseEntity.ok(new RestResponseDto(200, "ok", userService.getUser(authentication.getPrincipal().toString())));
+        User userResult = userService.getUser(authentication.getPrincipal().toString());
+        UserResponseDto returnResult = modelMapper.map(userResult, UserResponseDto.class);
+        return ResponseEntity.ok(new RestResponseDto(200, "ok", returnResult));
     }
 
     // ========================================================================
@@ -125,8 +131,9 @@ public class UserController {
         }
 
         // ======== Return Bad Request on Incomplete Request ========
-        UserResponseDto result = userService.saveUser(userDto);
-        if (result == null) {
+        User userResult = userService.saveUser(userDto);
+        UserResponseDto returnResult = modelMapper.map(userResult, UserResponseDto.class);
+        if (returnResult == null) {
             return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(new RestResponseDto(HttpStatus.BAD_REQUEST.value(), "Incomplete user data", ""));
@@ -134,7 +141,7 @@ public class UserController {
 
         // ======== Return Created on User Registration Success ========
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/register").toUriString());
-        return ResponseEntity.created(uri).body(new RestResponseDto(HttpStatus.CREATED.value(), "created", result));
+        return ResponseEntity.created(uri).body(new RestResponseDto(HttpStatus.CREATED.value(), "created", returnResult));
     }
 
     // ========================================================================

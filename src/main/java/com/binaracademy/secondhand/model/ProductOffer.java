@@ -29,7 +29,10 @@ public class ProductOffer {
     private Long productId;
 
     @NotNull
-    private Long userId;
+    private Long buyerId;
+
+    @NotNull
+    private Long sellerId;
 
     @Enumerated(EnumType.STRING)
     @NotNull

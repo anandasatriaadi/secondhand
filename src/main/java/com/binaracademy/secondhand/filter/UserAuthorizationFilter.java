@@ -53,12 +53,13 @@ public class UserAuthorizationFilter extends OncePerRequestFilter {
 
                     filterChain.doFilter(request, response);
                 } catch (NestedServletException e) {
+                    log.error("Error while authenticating user", e);
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
                     new ObjectMapper()
                         .writeValue(
                             response.getOutputStream(),
-                            new RestResponseDto(HttpServletResponse.SC_BAD_REQUEST, "Max image size 1MB", "")
+                            new RestResponseDto(HttpServletResponse.SC_BAD_REQUEST, "Bad Request causes Internal Server Error", "")
                         );
                 } catch (Exception e) {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
