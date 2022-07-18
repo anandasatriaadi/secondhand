@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +21,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class OfferServiceImpl implements OfferService {
 
     @Autowired
@@ -57,7 +55,7 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public List<ProductOffer> getOffers(String email) {
-        return productOfferRepository.findOfferByUserId(userRepository.findByEmail(email).getId());
+        return productOfferRepository.findByUserId(userRepository.findByEmail(email).getId());
     }
 
     @Override

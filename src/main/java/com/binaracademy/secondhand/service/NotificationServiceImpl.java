@@ -3,7 +3,6 @@ package com.binaracademy.secondhand.service;
 import com.binaracademy.secondhand.model.Notification;
 import com.binaracademy.secondhand.repository.NotificationRepository;
 import com.binaracademy.secondhand.repository.UserRepository;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +34,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public List<Notification> getNotification(String email) {
         Long userId = userRepository.findByEmail(email).getId();
-        return notificationRepository.findNotificationByUserId(userId);
+        return notificationRepository.findByUserId(userId);
     }
 
     @Override

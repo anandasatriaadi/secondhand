@@ -56,7 +56,7 @@ public class ProductImageServiceImpl implements ProductImageService {
 
     @Override
     public List<ProductImage> getProductImage(Long productId) {
-        return productImageRepository.findImageByProductId(productId);
+        return productImageRepository.findByProductId(productId);
     }
 
     // ========================================================================

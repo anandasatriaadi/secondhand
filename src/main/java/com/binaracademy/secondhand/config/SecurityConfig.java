@@ -37,7 +37,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final String[] API_PATH_WISHLIST = {
         "/api/login",
         "/api/register",
-        "/api/product/**/image",
+        "/api/product/**/images",
         "/api/product/**/detail",
         "/api/products/category/**",
         "/api/product**",
