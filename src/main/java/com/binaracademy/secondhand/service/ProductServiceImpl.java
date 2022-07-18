@@ -6,6 +6,8 @@ import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.model.ProductImage;
 import com.binaracademy.secondhand.model.ProductOffer;
 import com.binaracademy.secondhand.repository.CategoryRepository;
+import com.binaracademy.secondhand.repository.ProductImageRepository;
+import com.binaracademy.secondhand.repository.ProductOfferRepository;
 import com.binaracademy.secondhand.repository.ProductRepository;
 import com.binaracademy.secondhand.repository.UserRepository;
 import com.binaracademy.secondhand.util.enums.ProductStatus;
@@ -26,6 +28,12 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ProductImageRepository productImageRepository;
+
+    @Autowired
+    private ProductOfferRepository productOfferRepository;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -52,8 +60,13 @@ public class ProductServiceImpl implements ProductService {
             if (uploadProductDto.getImages().length > 4) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max 4 images");
             }
-            if (uploadProductDto.getImages().length == 1 && uploadProductDto.getImages()[0].getOriginalFilename().equals("")) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Min 1 image");
+            if (uploadProductDto.getImages().length == 1) {
+                String res = uploadProductDto.getImages()[0].getOriginalFilename();
+                if (res == null) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image is null");
+                } else if (res.equals("")) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Min 1 image");
+                }
             }
         }
 
@@ -122,19 +135,19 @@ public class ProductServiceImpl implements ProductService {
     // ======== Get products by category ========
     @Override
     public List<Product> getProductsByCategory(Long categoryId, int page, int size) {
-        return productRepository.findProductsByCategory(categoryId, PageRequest.of(page, size));
+        return productRepository.findByCategory(categoryId, PageRequest.of(page, size));
     }
 
     // ======== Get product images ========
     @Override
     public List<ProductImage> getAllProductImages(Long productId) {
-        return productRepository.findAllProductImages(productId);
+        return productImageRepository.findByProductId(productId);
     }
 
     // ======== Get all product offers ========
     @Override
     public List<ProductOffer> getAllProductOffers(Long productId) {
-        return productRepository.findAllProductOffers(productId);
+        return productOfferRepository.findByProductId(productId);
     }
 
     // ========================================================================
@@ -182,7 +195,7 @@ public class ProductServiceImpl implements ProductService {
             Product productDb = productRepository.save(product);
 
             if (uploadProductDto.getImages().length > 0) {
-                List<ProductImage> oldImages = productRepository.findAllProductImages(productId);
+                List<ProductImage> oldImages = productImageRepository.findByProductId(productId);
                 productImageService.deleteProductImages(oldImages);
 
                 productImageService.saveProductImages(productDb.getId(), uploadProductDto.getImages());
@@ -227,7 +240,7 @@ public class ProductServiceImpl implements ProductService {
         if (res.isPresent()) {
             product = res.get();
             if (userRepository.findByEmail(email).getId().equals(product.getUserId())) {
-                List<ProductImage> oldImages = productRepository.findAllProductImages(productId);
+                List<ProductImage> oldImages = productImageRepository.findByProductId(productId);
                 productImageService.deleteProductImages(oldImages);
                 productRepository.deleteById(productId);
                 return true;
