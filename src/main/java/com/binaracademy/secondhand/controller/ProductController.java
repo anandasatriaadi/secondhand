@@ -65,7 +65,7 @@ public class ProductController {
             return ResponseEntity.internalServerError().body(new RestResponseDto(500, INTERNAL_ERROR_MSG, ""));
         }
     }
-    
+
     // ========================================================================
     //   Get products with search and pagination
     // ========================================================================

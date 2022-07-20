@@ -10,7 +10,6 @@ import com.binaracademy.secondhand.repository.UserRepository;
 import com.binaracademy.secondhand.repository.UserTransactionRepository;
 import com.binaracademy.secondhand.util.enums.OfferStatus;
 import com.binaracademy.secondhand.util.enums.ProductStatus;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -107,9 +106,8 @@ public class OfferServiceImpl implements OfferService {
                 soldProduct.get().setProductStatus(ProductStatus.SOLD);
                 productRepository.save(soldProduct.get());
             }
-            
-            return setOfferStatus(offerId, OfferStatus.COMPLETED);
 
+            return setOfferStatus(offerId, OfferStatus.COMPLETED);
         }
         return false;
     }
