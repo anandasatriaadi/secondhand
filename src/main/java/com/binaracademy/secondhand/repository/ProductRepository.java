@@ -2,7 +2,6 @@ package com.binaracademy.secondhand.repository;
 
 import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.util.enums.ProductStatus;
-
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -121,7 +121,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> getSellerProducts(String email) {
         Long userId = userRepository.findByEmail(email).getId();
-        
+
         return productRepository.findByUserId(userId);
     }
 
