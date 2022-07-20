@@ -77,7 +77,11 @@ public class ProductServiceImpl implements ProductService {
         }
 
         try {
+            if (userPublishedCount(email) > 4) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User has max 4 products");
+            }
             checkProductDto(uploadProductDto);
+
             Long userId = userRepository.findByEmail(email).getId();
 
             // ======== Assign DTO to Model ========
@@ -95,6 +99,8 @@ public class ProductServiceImpl implements ProductService {
             productImageService.saveProductImages(productDb.getId(), uploadProductDto.getImages());
 
             return productDb;
+        } catch (ResponseStatusException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getReason());
         } catch (IllegalArgumentException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
@@ -113,6 +119,14 @@ public class ProductServiceImpl implements ProductService {
 
     // ======== Get product detail ========
     @Override
+    public List<Product> getSellerProducts(String email) {
+        Long userId = userRepository.findByEmail(email).getId();
+        
+        return productRepository.findByUserId(userId);
+    }
+
+    // ======== Get product detail ========
+    @Override
     public Product getProduct(Long id) {
         Optional<Product> productExist = productRepository.findById(id);
         if (productExist.isPresent()) {
@@ -126,7 +140,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<Product> getAllProducts(String search, int page, int size) {
         if (search.equals("")) {
-            return productRepository.findAll(PageRequest.of(page, size)).getContent();
+            return productRepository.findByProductStatus(ProductStatus.PUBLISHED, PageRequest.of(page, size));
         }
         log.info("Searching for product: " + search);
         return productRepository.findAllAndSearch(search, PageRequest.of(page, size));
@@ -264,8 +278,7 @@ public class ProductServiceImpl implements ProductService {
             uploadProductDto.getDescription() == null ||
             uploadProductDto.getCategoryId() == null ||
             uploadProductDto.getPrice() == null ||
-            uploadProductDto.getAddress() == null ||
-            uploadProductDto.getProductStatus() == null
+            uploadProductDto.getAddress() == null
         ) {
             String msg = "Product ";
             msg += uploadProductDto.getName() == null ? "name, " : "";
@@ -273,9 +286,16 @@ public class ProductServiceImpl implements ProductService {
             msg += uploadProductDto.getCategoryId() == null ? "category, " : "";
             msg += uploadProductDto.getPrice() == null ? "price, " : "";
             msg += uploadProductDto.getAddress() == null ? "address, " : "";
-            msg += uploadProductDto.getProductStatus() == null ? "product status " : "";
             msg += "can't be null";
             throw new IllegalArgumentException(msg);
         }
+    }
+
+    // ======== Check user published product count ========
+    private long userPublishedCount(String email) {
+        Long userId = userRepository.findByEmail(email).getId();
+        long res = productRepository.countByUserIdAndProductStatus(userId, ProductStatus.PUBLISHED);
+        log.info(res + " products published by user " + email);
+        return res;
     }
 }

@@ -9,8 +9,11 @@ import com.binaracademy.secondhand.repository.ProductRepository;
 import com.binaracademy.secondhand.repository.UserRepository;
 import com.binaracademy.secondhand.repository.UserTransactionRepository;
 import com.binaracademy.secondhand.util.enums.OfferStatus;
+import com.binaracademy.secondhand.util.enums.ProductStatus;
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,11 @@ public class OfferServiceImpl implements OfferService {
         Optional<Product> productResult = productRepository.findById(offer.getProductId());
         if (productResult.isPresent()) {
             Long userId = userRepository.findByEmail(email).getId();
+
+            if (userId.equals(productResult.get().getUserId())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User cannot offer their own product");
+            }
+
             ProductOffer productOffer = new ProductOffer();
             productOffer.setProductId(offer.getProductId());
             productOffer.setBuyerId(userId);
@@ -93,7 +101,15 @@ public class OfferServiceImpl implements OfferService {
 
             userTransactionRepository.save(userTransaction);
 
+            Optional<Product> soldProduct = productRepository.findById(queryResult.get().getProductId());
+
+            if (soldProduct.isPresent()) {
+                soldProduct.get().setProductStatus(ProductStatus.SOLD);
+                productRepository.save(soldProduct.get());
+            }
+            
             return setOfferStatus(offerId, OfferStatus.COMPLETED);
+
         }
         return false;
     }

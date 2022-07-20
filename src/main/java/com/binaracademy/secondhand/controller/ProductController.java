@@ -50,6 +50,23 @@ public class ProductController {
     private final NotificationService notificationService;
 
     // ========================================================================
+    //   Get seller products list
+    // ========================================================================
+    @GetMapping("/products/seller")
+    public ResponseEntity<RestResponseDto> getSellerProducts(Authentication authentication) {
+        try {
+            List<Product> result = productService.getSellerProducts(authentication.getPrincipal().toString());
+            return ResponseEntity.ok(new RestResponseDto(200, "ok", result));
+        } catch (ResponseStatusException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(e.getStatus()).body(new RestResponseDto(e.getRawStatusCode(), e.getReason(), ""));
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError().body(new RestResponseDto(500, INTERNAL_ERROR_MSG, ""));
+        }
+    }
+    
+    // ========================================================================
     //   Get products with search and pagination
     // ========================================================================
     @GetMapping("/products")
