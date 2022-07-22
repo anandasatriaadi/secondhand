@@ -51,24 +51,7 @@ public class ProductServiceImpl implements ProductService {
     // ======== Create/save product ========
     @Override
     public Product saveProduct(String email, ProductUploadDto uploadProductDto) throws ResponseStatusException {
-        if (uploadProductDto.getImages() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Images is null");
-        }
-
-        // ======== Check Images Count ========
-        if (uploadProductDto.getImages().length > 4 || uploadProductDto.getImages().length == 1) {
-            if (uploadProductDto.getImages().length > 4) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max 4 images");
-            }
-            if (uploadProductDto.getImages().length == 1) {
-                String res = uploadProductDto.getImages()[0].getOriginalFilename();
-                if (res == null) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image is null");
-                } else if (res.equals("")) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Min 1 image");
-                }
-            }
-        }
+        checkProductImage(uploadProductDto);
 
         // ======== Check if category exists ========
         Optional<Category> categoryExist = categoryRepository.findById(uploadProductDto.getCategoryId());
@@ -77,7 +60,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         try {
-            if (userPublishedCount(email) > 4) {
+            if (userPublishedCount(email) >= 4) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User has max 4 products");
             }
             checkProductDto(uploadProductDto);
@@ -176,14 +159,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public Product updateProduct(String email, Long productId, ProductUploadDto uploadProductDto) {
         // ======== Check Repository ========
-        if (!productRepository.findById(productId).isPresent()) {
+        Optional<Product> res = productRepository.findById(productId);
+        if (!res.isPresent()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Product not found");
         }
 
-        // ======== Check Images Count ========
-        if (uploadProductDto.getImages().length > 4) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max 4 images");
+        Long userId = userRepository.findByEmail(email).getId();
+        if (!res.get().getUserId().equals(userId)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "You are not authorized to update this product");
         }
+
+        checkProductImage(uploadProductDto);
 
         // ======== Check if category exists ========
         Optional<Category> categoryExist = categoryRepository.findById(uploadProductDto.getCategoryId());
@@ -193,7 +179,6 @@ public class ProductServiceImpl implements ProductService {
 
         try {
             checkProductDto(uploadProductDto);
-            Long userId = userRepository.findByEmail(email).getId();
 
             // ======== Assign DTO to Model ========
             Product product = new Product();
@@ -288,6 +273,27 @@ public class ProductServiceImpl implements ProductService {
             msg += uploadProductDto.getAddress() == null ? "address, " : "";
             msg += "can't be null";
             throw new IllegalArgumentException(msg);
+        }
+    }
+
+    private void checkProductImage(ProductUploadDto uploadProductDto) {
+        if (uploadProductDto.getImages() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Images is null");
+        }
+
+        // ======== Check Images Count ========
+        if (uploadProductDto.getImages().length > 4 || uploadProductDto.getImages().length == 1) {
+            if (uploadProductDto.getImages().length > 4) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max 4 images");
+            }
+            if (uploadProductDto.getImages().length == 1) {
+                String res = uploadProductDto.getImages()[0].getOriginalFilename();
+                if (res == null) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image is null");
+                } else if (res.equals("")) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Min 1 image");
+                }
+            }
         }
     }
 
