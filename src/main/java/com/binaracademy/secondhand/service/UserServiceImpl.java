@@ -63,11 +63,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             String imageUrl = (String) CloudinaryUtil.cloudinary.uploader().upload(convertFile, ObjectUtils.emptyMap()).get("url");
 
             user.setImageUrl(imageUrl);
-            return userRepository.save(user);
         } catch (Exception e) {
             log.error(e.getMessage());
             return null;
         }
+
+        return userRepository.save(user);
     }
 
     @Override
