@@ -6,6 +6,8 @@ import com.binaracademy.secondhand.repository.UserRepository;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public User getUser(String email) {
         log.info("Getting User");
         return userRepository.findByEmail(email);
+    }
+
+    @Override
+    public User getUserId(Long id) {
+        log.info("Getting User");
+        Optional<User> user = userRepository.findById(id);
+        return user.isPresent() ? user.get() : null;
     }
 
     @Override
