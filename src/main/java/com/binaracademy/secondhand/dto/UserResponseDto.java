@@ -10,4 +10,5 @@ public class UserResponseDto {
     private String phoneNumber;
     private String address;
     private String city;
+    private String imageUrl;
 }
