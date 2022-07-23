@@ -1,8 +1,13 @@
 package com.binaracademy.secondhand.service;
 
+import com.binaracademy.secondhand.dto.UserRegisterDto;
 import com.binaracademy.secondhand.dto.UserUploadDto;
 import com.binaracademy.secondhand.model.User;
 import com.binaracademy.secondhand.repository.UserRepository;
+import com.binaracademy.secondhand.util.CloudinaryUtil;
+import com.cloudinary.utils.ObjectUtils;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -30,7 +35,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    public User saveUser(UserUploadDto userDto) {
+    public User saveUser(UserRegisterDto userDto) {
         log.info("Saving User");
         if (userDto.getPassword() != null && userDto.getEmail() != null && userDto.getFullName() != null) {
             User user = new User();
@@ -40,6 +45,29 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
             return userRepository.save(user);
         } else {
+            return null;
+        }
+    }
+
+    @Override
+    public User updateUser(String email, UserUploadDto userDto) {
+        log.info("Updating User");
+        
+        User user = userRepository.findByEmail(email);
+        user.setFullName(userDto.getFullName());
+        user.setAddress(userDto.getAddress());
+        user.setCity(userDto.getCity());
+        user.setPhoneNumber(userDto.getPhoneNumber());
+
+        try {
+            File convertFile = new File(System.getProperty("java.io.tmpdir") + "/" + userDto.getImage().getOriginalFilename());
+            userDto.getImage().transferTo(convertFile);
+            String imageUrl = (String) CloudinaryUtil.cloudinary.uploader().upload(convertFile, ObjectUtils.emptyMap()).get("url");
+
+            user.setImageUrl(imageUrl);
+            return userRepository.save(user);
+        } catch (Exception e) {
+            log.error(e.getMessage());
             return null;
         }
     }
