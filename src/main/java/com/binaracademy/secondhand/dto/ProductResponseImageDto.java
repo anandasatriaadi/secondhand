@@ -1,5 +1,6 @@
 package com.binaracademy.secondhand.dto;
 
+import com.binaracademy.secondhand.model.Category;
 import com.binaracademy.secondhand.model.ProductImage;
 import com.binaracademy.secondhand.util.enums.ProductStatus;
 import java.util.List;
@@ -22,5 +23,6 @@ public class ProductResponseImageDto {
     private Long userId;
     private UserResponseDto userInfo;
     private Long categoryId;
+    private Category category;
     private List<ProductImage> productImages;
 }

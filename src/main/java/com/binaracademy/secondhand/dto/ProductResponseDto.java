@@ -1,5 +1,6 @@
 package com.binaracademy.secondhand.dto;
 
+import com.binaracademy.secondhand.model.Category;
 import com.binaracademy.secondhand.util.enums.ProductStatus;
 import lombok.Data;
 
@@ -16,4 +17,5 @@ public class ProductResponseDto {
     private Long userId;
     private UserResponseDto userInfo;
     private Long categoryId;
+    private Category category;
 }
