@@ -277,22 +277,10 @@ public class ProductServiceImpl implements ProductService {
     }
 
     private void checkProductImage(ProductUploadDto uploadProductDto) {
-        if (uploadProductDto.getImages() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Images is null");
-        }
-
         // ======== Check Images Count ========
         if (uploadProductDto.getImages().length > 4 || uploadProductDto.getImages().length == 1) {
             if (uploadProductDto.getImages().length > 4) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Max 4 images");
-            }
-            if (uploadProductDto.getImages().length == 1) {
-                String res = uploadProductDto.getImages()[0].getOriginalFilename();
-                if (res == null) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Image is null");
-                } else if (res.equals("")) {
-                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Min 1 image");
-                }
             }
         }
     }
