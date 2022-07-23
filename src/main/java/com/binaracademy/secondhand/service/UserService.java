@@ -6,7 +6,8 @@ import java.util.List;
 
 public interface UserService {
     User saveUser(UserUploadDto userDto);
-    User getUser(String username);
-    boolean checkUser(String username);
+    User getUser(String email);
+    User getUserId(Long id);
+    boolean checkUser(String email);
     List<User> getAllUsers();
 }
