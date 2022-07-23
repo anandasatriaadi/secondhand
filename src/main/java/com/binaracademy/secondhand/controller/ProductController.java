@@ -79,6 +79,8 @@ public class ProductController {
                     res.setAddress(prodResult.getAddress());
                     res.setUserId(prodResult.getUserId());
                     res.setCategoryId(prodResult.getCategoryId());
+                    res.setCategory(prodResult.getCategory());
+                    res.setThumbnailUrl(productImageService.getProductImage(prodResult.getId()).getImageUrl());
 
                     User user = userService.getUserId(res.getUserId());
                     res.setUserInfo(modelMapper.map(user, UserResponseDto.class));
@@ -124,6 +126,7 @@ public class ProductController {
                     res.setAddress(prodResult.getAddress());
                     res.setUserId(prodResult.getUserId());
                     res.setCategoryId(prodResult.getCategoryId());
+                    res.setCategory(prodResult.getCategory());
                     res.setThumbnailUrl(productImageService.getProductImage(prodResult.getId()).getImageUrl());
 
                     User user = userService.getUserId(res.getUserId());
@@ -165,6 +168,8 @@ public class ProductController {
                     res.setAddress(prodResult.getAddress());
                     res.setUserId(prodResult.getUserId());
                     res.setCategoryId(prodResult.getCategoryId());
+                    res.setCategory(prodResult.getCategory());
+                    res.setThumbnailUrl(productImageService.getProductImage(prodResult.getId()).getImageUrl());
 
                     User user = userService.getUserId(res.getUserId());
                     res.setUserInfo(modelMapper.map(user, UserResponseDto.class));
@@ -217,6 +222,7 @@ public class ProductController {
             response.setAddress(prodResult.getAddress());
             response.setUserId(prodResult.getUserId());
             response.setCategoryId(prodResult.getCategoryId());
+            response.setCategory(prodResult.getCategory());
             response.setProductImages(prodImageResult);
 
             User user = userService.getUserId(prodResult.getUserId());
