@@ -6,13 +6,11 @@ import com.binaracademy.secondhand.model.User;
 import com.binaracademy.secondhand.repository.UserRepository;
 import com.binaracademy.secondhand.util.CloudinaryUtil;
 import com.cloudinary.utils.ObjectUtils;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +50,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User updateUser(String email, UserUploadDto userDto) {
         log.info("Updating User");
-        
+
         User user = userRepository.findByEmail(email);
         user.setFullName(userDto.getFullName());
         user.setAddress(userDto.getAddress());

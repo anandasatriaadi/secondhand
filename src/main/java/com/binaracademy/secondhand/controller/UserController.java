@@ -157,15 +157,15 @@ public class UserController {
         UserResponseDto returnResult = modelMapper.map(userResult, UserResponseDto.class);
         if (returnResult == null) {
             return ResponseEntity
-            .status(HttpStatus.BAD_REQUEST)
-            .body(new RestResponseDto(HttpStatus.BAD_REQUEST.value(), "Incomplete user data", ""));
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new RestResponseDto(HttpStatus.BAD_REQUEST.value(), "Incomplete user data", ""));
         }
-        
+
         // ======== Return Created on User Registration Success ========
         URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentContextPath().path("/api/register").toUriString());
         return ResponseEntity.created(uri).body(new RestResponseDto(HttpStatus.CREATED.value(), "created", returnResult));
     }
-    
+
     // ========================================================================
     //   Check user data completeness for seller
     // ========================================================================

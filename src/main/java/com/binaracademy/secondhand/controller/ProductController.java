@@ -18,10 +18,8 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -70,21 +68,24 @@ public class ProductController {
     public ResponseEntity<RestResponseDto> getSellerProducts(Authentication authentication) {
         try {
             List<Product> result = productService.getSellerProducts(authentication.getPrincipal().toString());
-            List<ProductResponseDto> response = result.stream().map(prodResult -> {
-                ProductResponseDto res = new ProductResponseDto();
-                res.setId(prodResult.getId());
-                res.setName(prodResult.getName());
-                res.setDescription(prodResult.getDescription());
-                res.setPrice(prodResult.getPrice());
-                res.setAddress(prodResult.getAddress());
-                res.setUserId(prodResult.getUserId());
-                res.setCategoryId(prodResult.getCategoryId());
+            List<ProductResponseDto> response = result
+                .stream()
+                .map(prodResult -> {
+                    ProductResponseDto res = new ProductResponseDto();
+                    res.setId(prodResult.getId());
+                    res.setName(prodResult.getName());
+                    res.setDescription(prodResult.getDescription());
+                    res.setPrice(prodResult.getPrice());
+                    res.setAddress(prodResult.getAddress());
+                    res.setUserId(prodResult.getUserId());
+                    res.setCategoryId(prodResult.getCategoryId());
 
-                User user = userService.getUserId(res.getUserId());
-                res.setUserInfo(modelMapper.map(user, UserResponseDto.class));
+                    User user = userService.getUserId(res.getUserId());
+                    res.setUserInfo(modelMapper.map(user, UserResponseDto.class));
 
-                return res;
-            }).collect(Collectors.toList());
+                    return res;
+                })
+                .collect(Collectors.toList());
 
             return ResponseEntity.ok(new RestResponseDto(200, "ok", response));
         } catch (ResponseStatusException e) {
@@ -112,21 +113,24 @@ public class ProductController {
 
         try {
             List<Product> result = productService.getAllProducts(search, page, size);
-            List<ProductResponseDto> response = result.stream().map(prodResult -> {
-                ProductResponseDto res = new ProductResponseDto();
-                res.setId(prodResult.getId());
-                res.setName(prodResult.getName());
-                res.setDescription(prodResult.getDescription());
-                res.setPrice(prodResult.getPrice());
-                res.setAddress(prodResult.getAddress());
-                res.setUserId(prodResult.getUserId());
-                res.setCategoryId(prodResult.getCategoryId());
-                
-                User user = userService.getUserId(res.getUserId());
-                res.setUserInfo(modelMapper.map(user, UserResponseDto.class));
+            List<ProductResponseDto> response = result
+                .stream()
+                .map(prodResult -> {
+                    ProductResponseDto res = new ProductResponseDto();
+                    res.setId(prodResult.getId());
+                    res.setName(prodResult.getName());
+                    res.setDescription(prodResult.getDescription());
+                    res.setPrice(prodResult.getPrice());
+                    res.setAddress(prodResult.getAddress());
+                    res.setUserId(prodResult.getUserId());
+                    res.setCategoryId(prodResult.getCategoryId());
 
-                return res;
-            }).collect(Collectors.toList());
+                    User user = userService.getUserId(res.getUserId());
+                    res.setUserInfo(modelMapper.map(user, UserResponseDto.class));
+
+                    return res;
+                })
+                .collect(Collectors.toList());
 
             return ResponseEntity.ok(new RestResponseDto(200, "ok", response));
         } catch (ResponseStatusException e) {
@@ -149,21 +153,24 @@ public class ProductController {
     ) {
         try {
             List<Product> result = productService.getProductsByCategory(categoryId, page, size);
-            List<ProductResponseDto> response = result.stream().map(prodResult -> {
-                ProductResponseDto res = new ProductResponseDto();
-                res.setId(prodResult.getId());
-                res.setName(prodResult.getName());
-                res.setDescription(prodResult.getDescription());
-                res.setPrice(prodResult.getPrice());
-                res.setAddress(prodResult.getAddress());
-                res.setUserId(prodResult.getUserId());
-                res.setCategoryId(prodResult.getCategoryId());
-                
-                User user = userService.getUserId(res.getUserId());
-                res.setUserInfo(modelMapper.map(user, UserResponseDto.class));
+            List<ProductResponseDto> response = result
+                .stream()
+                .map(prodResult -> {
+                    ProductResponseDto res = new ProductResponseDto();
+                    res.setId(prodResult.getId());
+                    res.setName(prodResult.getName());
+                    res.setDescription(prodResult.getDescription());
+                    res.setPrice(prodResult.getPrice());
+                    res.setAddress(prodResult.getAddress());
+                    res.setUserId(prodResult.getUserId());
+                    res.setCategoryId(prodResult.getCategoryId());
 
-                return res;
-            }).collect(Collectors.toList());
+                    User user = userService.getUserId(res.getUserId());
+                    res.setUserInfo(modelMapper.map(user, UserResponseDto.class));
+
+                    return res;
+                })
+                .collect(Collectors.toList());
 
             return ResponseEntity.ok(new RestResponseDto(200, "ok", response));
         } catch (ResponseStatusException e) {
@@ -200,7 +207,7 @@ public class ProductController {
         try {
             Product prodResult = productService.getProduct(id);
             List<ProductImage> prodImageResult = productImageService.getProductImage(id);
-            
+
             ProductResponseImageDto response = new ProductResponseImageDto();
             response.setId(prodResult.getId());
             response.setName(prodResult.getName());
@@ -213,7 +220,7 @@ public class ProductController {
 
             User user = userService.getUserId(prodResult.getUserId());
             response.setUserInfo(modelMapper.map(user, UserResponseDto.class));
-            
+
             return ResponseEntity.ok(new RestResponseDto(200, "ok", response));
         } catch (ResponseStatusException e) {
             log.error(e.getMessage());
