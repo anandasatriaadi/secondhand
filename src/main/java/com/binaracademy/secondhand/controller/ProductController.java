@@ -124,6 +124,7 @@ public class ProductController {
                     res.setAddress(prodResult.getAddress());
                     res.setUserId(prodResult.getUserId());
                     res.setCategoryId(prodResult.getCategoryId());
+                    res.setThumbnailUrl(productImageService.getProductImage(prodResult.getId()).getImageUrl());
 
                     User user = userService.getUserId(res.getUserId());
                     res.setUserInfo(modelMapper.map(user, UserResponseDto.class));
@@ -206,7 +207,7 @@ public class ProductController {
     public ResponseEntity<RestResponseDto> getProductDetail(@PathVariable("id") Long id) {
         try {
             Product prodResult = productService.getProduct(id);
-            List<ProductImage> prodImageResult = productImageService.getProductImage(id);
+            List<ProductImage> prodImageResult = productImageService.getProductImageList(id);
 
             ProductResponseImageDto response = new ProductResponseImageDto();
             response.setId(prodResult.getId());
