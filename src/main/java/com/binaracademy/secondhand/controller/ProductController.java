@@ -65,8 +65,11 @@ public class ProductController {
     //   Get seller products list
     // ========================================================================
     @GetMapping("/products/seller")
-    public ResponseEntity<RestResponseDto> getSellerProducts(Authentication authentication, @RequestParam("page") int page,
-    @RequestParam("size") int size) {
+    public ResponseEntity<RestResponseDto> getSellerProducts(
+        Authentication authentication,
+        @RequestParam("page") int page,
+        @RequestParam("size") int size
+    ) {
         try {
             List<Product> result = productService.getSellerProducts(authentication.getPrincipal().toString(), page, size);
             List<ProductResponseDto> response = result

@@ -1,14 +1,14 @@
 package com.binaracademy.secondhand.service;
 
-import com.binaracademy.secondhand.dto.ProductOfferUploadDto;
-import com.binaracademy.secondhand.model.ProductOffer;
+import com.binaracademy.secondhand.dto.OfferUploadDto;
+import com.binaracademy.secondhand.model.Offer;
 import java.util.List;
 
 public interface OfferService {
-    ProductOffer saveOffer(String email, ProductOfferUploadDto offer);
-    List<ProductOffer> getBuyerOffers(String email);
-    List<ProductOffer> getSellerOffers(String email);
-    ProductOffer getOffer(Long offerId);
+    Offer saveOffer(String email, OfferUploadDto offer);
+    List<Offer> getBuyerOffers(String email);
+    List<Offer> getSellerOffers(String email);
+    Offer getOffer(Long offerId);
     Boolean acceptOffer(Long offerId);
     Boolean declineOffer(Long offerId);
     Boolean completeOffer(Long offerId);

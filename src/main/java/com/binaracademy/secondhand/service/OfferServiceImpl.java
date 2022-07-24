@@ -1,10 +1,10 @@
 package com.binaracademy.secondhand.service;
 
-import com.binaracademy.secondhand.dto.ProductOfferUploadDto;
+import com.binaracademy.secondhand.dto.OfferUploadDto;
+import com.binaracademy.secondhand.model.Offer;
 import com.binaracademy.secondhand.model.Product;
-import com.binaracademy.secondhand.model.ProductOffer;
 import com.binaracademy.secondhand.model.UserTransaction;
-import com.binaracademy.secondhand.repository.ProductOfferRepository;
+import com.binaracademy.secondhand.repository.OfferRepository;
 import com.binaracademy.secondhand.repository.ProductRepository;
 import com.binaracademy.secondhand.repository.UserRepository;
 import com.binaracademy.secondhand.repository.UserTransactionRepository;
@@ -31,13 +31,13 @@ public class OfferServiceImpl implements OfferService {
     private final ProductRepository productRepository;
 
     @Autowired
-    private final ProductOfferRepository productOfferRepository;
+    private final OfferRepository productOfferRepository;
 
     @Autowired
     private final UserTransactionRepository userTransactionRepository;
 
     @Override
-    public ProductOffer saveOffer(String email, ProductOfferUploadDto offer) {
+    public Offer saveOffer(String email, OfferUploadDto offer) {
         Optional<Product> productResult = productRepository.findById(offer.getProductId());
         if (productResult.isPresent()) {
             Long userId = userRepository.findByEmail(email).getId();
@@ -46,7 +46,7 @@ public class OfferServiceImpl implements OfferService {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User cannot offer their own product");
             }
 
-            ProductOffer productOffer = new ProductOffer();
+            Offer productOffer = new Offer();
             productOffer.setProductId(offer.getProductId());
             productOffer.setBuyerId(userId);
             productOffer.setSellerId(productResult.get().getUserId());
@@ -61,18 +61,18 @@ public class OfferServiceImpl implements OfferService {
     }
 
     @Override
-    public List<ProductOffer> getBuyerOffers(String email) {
+    public List<Offer> getBuyerOffers(String email) {
         return productOfferRepository.findByBuyerId(userRepository.findByEmail(email).getId());
     }
 
     @Override
-    public List<ProductOffer> getSellerOffers(String email) {
+    public List<Offer> getSellerOffers(String email) {
         return productOfferRepository.findBySellerId(userRepository.findByEmail(email).getId());
     }
 
     @Override
-    public ProductOffer getOffer(Long offerId) {
-        Optional<ProductOffer> productOffer = productOfferRepository.findById(offerId);
+    public Offer getOffer(Long offerId) {
+        Optional<Offer> productOffer = productOfferRepository.findById(offerId);
         return productOffer.isPresent() ? productOffer.get() : null;
     }
 
@@ -88,7 +88,7 @@ public class OfferServiceImpl implements OfferService {
 
     @Override
     public Boolean completeOffer(Long offerId) {
-        Optional<ProductOffer> queryResult = productOfferRepository.findById(offerId);
+        Optional<Offer> queryResult = productOfferRepository.findById(offerId);
 
         if (queryResult.isPresent()) {
             UserTransaction userTransaction = new UserTransaction();
@@ -121,9 +121,9 @@ public class OfferServiceImpl implements OfferService {
     //   Utility methods
     // ========================================================================
     private Boolean setOfferStatus(Long offerId, OfferStatus status) {
-        Optional<ProductOffer> queryResult = productOfferRepository.findById(offerId);
+        Optional<Offer> queryResult = productOfferRepository.findById(offerId);
         if (queryResult.isPresent()) {
-            ProductOffer offer = queryResult.get();
+            Offer offer = queryResult.get();
             offer.setOfferStatus(status);
             return productOfferRepository.save(offer) != null;
         }

@@ -2,12 +2,12 @@ package com.binaracademy.secondhand.service;
 
 import com.binaracademy.secondhand.dto.ProductUploadDto;
 import com.binaracademy.secondhand.model.Category;
+import com.binaracademy.secondhand.model.Offer;
 import com.binaracademy.secondhand.model.Product;
 import com.binaracademy.secondhand.model.ProductImage;
-import com.binaracademy.secondhand.model.ProductOffer;
 import com.binaracademy.secondhand.repository.CategoryRepository;
+import com.binaracademy.secondhand.repository.OfferRepository;
 import com.binaracademy.secondhand.repository.ProductImageRepository;
-import com.binaracademy.secondhand.repository.ProductOfferRepository;
 import com.binaracademy.secondhand.repository.ProductRepository;
 import com.binaracademy.secondhand.repository.UserRepository;
 import com.binaracademy.secondhand.util.enums.ProductStatus;
@@ -33,7 +33,7 @@ public class ProductServiceImpl implements ProductService {
     private ProductImageRepository productImageRepository;
 
     @Autowired
-    private ProductOfferRepository productOfferRepository;
+    private OfferRepository productOfferRepository;
 
     @Autowired
     private CategoryRepository categoryRepository;
@@ -143,7 +143,7 @@ public class ProductServiceImpl implements ProductService {
 
     // ======== Get all product offers ========
     @Override
-    public List<ProductOffer> getAllProductOffers(Long productId) {
+    public List<Offer> getAllProductOffers(Long productId) {
         return productOfferRepository.findByProductId(productId);
     }
 
