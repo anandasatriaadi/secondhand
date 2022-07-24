@@ -102,10 +102,10 @@ public class ProductServiceImpl implements ProductService {
 
     // ======== Get product detail ========
     @Override
-    public List<Product> getSellerProducts(String email) {
+    public List<Product> getSellerProducts(String email, int page, int size) {
         Long userId = userRepository.findByEmail(email).getId();
 
-        return productRepository.findByUserId(userId);
+        return productRepository.findByUserId(userId, PageRequest.of(page, size));
     }
 
     // ======== Get product detail ========

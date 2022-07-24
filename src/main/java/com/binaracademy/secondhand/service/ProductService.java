@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ProductService {
     Product getProduct(Long productId);
-    List<Product> getSellerProducts(String email);
+    List<Product> getSellerProducts(String email, int page, int size);
     List<Product> getAllProducts(String search, int page, int size);
     List<Product> getProductsByCategory(Long categoryId, int page, int size);
     List<ProductImage> getAllProductImages(Long productId);
