@@ -1,10 +1,10 @@
 package com.binaracademy.secondhand.controller;
 
-import com.binaracademy.secondhand.dto.ProductOfferUploadDto;
+import com.binaracademy.secondhand.dto.OfferUploadDto;
 import com.binaracademy.secondhand.dto.RestResponseDto;
 import com.binaracademy.secondhand.model.Notification;
+import com.binaracademy.secondhand.model.Offer;
 import com.binaracademy.secondhand.model.Product;
-import com.binaracademy.secondhand.model.ProductOffer;
 import com.binaracademy.secondhand.service.NotificationService;
 import com.binaracademy.secondhand.service.OfferService;
 import com.binaracademy.secondhand.service.ProductService;
@@ -47,9 +47,9 @@ public class OfferController {
     private final OfferService offerService;
 
     @PostMapping("/offer/save")
-    public ResponseEntity<RestResponseDto> saveOffer(Authentication authentication, @RequestBody ProductOfferUploadDto offer) {
+    public ResponseEntity<RestResponseDto> saveOffer(Authentication authentication, @RequestBody OfferUploadDto offer) {
         try {
-            ProductOffer result = offerService.saveOffer(authentication.getPrincipal().toString(), offer);
+            Offer result = offerService.saveOffer(authentication.getPrincipal().toString(), offer);
 
             Notification offerNotif = new Notification();
             offerNotif.setUserId(result.getSellerId());
