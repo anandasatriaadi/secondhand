@@ -190,7 +190,6 @@ public class ProductServiceImpl implements ProductService {
             product.setProductStatus(ProductStatus.PUBLISHED);
             product.setUserId(userId);
             product.setCategoryId(categoryExist.get().getId());
-            product.setCategory(categoryExist.get());
             Product productDb = productRepository.save(product);
 
             if (uploadProductDto.getImages().length > 0) {
