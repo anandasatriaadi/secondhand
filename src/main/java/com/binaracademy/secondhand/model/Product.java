@@ -37,6 +37,6 @@ public class Product {
     private Long categoryId;
 
     @ManyToOne
-    @JoinColumn(name = "categoryId", insertable = false, updatable = false)
+    @JoinColumn(name = "categoryId", insertable = false)
     private Category category;
 }
